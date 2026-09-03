@@ -1,0 +1,82 @@
+OIL AND NATURAL GAS CORPORATION LTD. Page No:1
+COMPANY : Assam Asset + RO
+DRILLING PROGRESS REPORT
+(06:00 Hrs of 01.04.2026 to 06:00 Hrs of 02.04.2026)
+___________________________________________________________________________
+
+ON LAND EXPLORATORY WELLS
+1.NG-2000-4 HPAA Type: DI/ MODE:D /WD: T.Depth:4,394 Pr.Depth:3,612 Day Mtr:
+RB Start: 09.09.2025 DR.Start:15.12.2025 PT.Start: WO.Start:CRep/OutCyl:/
+Days RB.P/A:25/47 DR.P/A:145/108 PT.P/A:20/ TOT.P/A:190/155 WO P/A://
+LA no/A.Kick:/ Mw wt/visc:11.20/046 Lot:3,616/11.35 Litho:
+Obj No/Name: / Obj days: Obj interval:
+Cost in INR(Planned/Actual):886,323,863.00 /960,346,238.00 
+NL-1: LOC-NOT AVBL. Status: LOC#NA (NOT AVAILABLE) Cluster: N
+______________________________
+Phase no Csg Size Depth (P/A) Days(P/A) H.top
+1 20" 450/453 8/12 
+2 13 3/8" 2,400/2,404 34/53 
+3 9 5/8" 3,600/3,606 42/44 
+4 5 1/2" 4,394/ 61/63 
+OPER:RECTIFIED OIL LEAKAGE FROM DW. CLEARED CMT FROM 3584M TO 3591M. C/O PREVENTIVE
+MAINTENANCE OF CATWAL K. GREASED TDS ELEVATOR. CLEARED CMT FROM 3591M TO 3595M. C&C MUD
+INTERMITTENTLY. 
+__________________________________________________________________________________________
+2.NG-2000-6 LKBF Type: DI/ MODE:D /WD: T.Depth:4,842 Pr.Depth:3,796 Day Mtr:
+RB Start: 17.12.2025 DR.Start:18.12.2025 PT.Start:11.07.2026 WO.Start:CRep/OutCyl:/
+Days RB.P/A:1/ DR.P/A:177/105 PT.P/A:20/ TOT.P/A:198/105 WO P/A://
+LA no/A.Kick:/ Mw wt/visc:11.40/052 Lot:2,580/11.70 Litho:CLAYSTONE AND SANDSTONE
+Obj No/Name: / Obj days: Obj interval:
+Cost in INR(Planned/Actual):1,119,328,853.00 /864,337,940.00 
+NL-1: LOC-NOT AVBL. Status: LOC#NA (NOT AVAILABLE) Cluster: N
+______________________________
+Phase no Csg Size Depth (P/A) Days(P/A) H.top
+1 20" 400/451 8/12 
+2 13 3/8" 2,420/2,570 42/53 
+3 9 5/8" 4,130/4,127 58/75 
+4 5 1/2" 4,842/4,840 69/60 
+OPER:POOH. CLEANED STAB & BIT. M/A & R/I BIT + B/S + 2 SGL 8" DC + STAB + 1 SGL 8" DC + X/O
++ 03 SGL 6½" DC. C/O CUT & SLIP OF CSG LINE. OPENED THE H-UNION OF STANDPIPE ABOVE SHORT
+HOSE (PCR SIDE). OBSD MUD CUT. RECTIFICATION IIP. M/W C/O PREVENTIVE MAINTENANCE OF TDS BY
+MEIL. C/O ACS CALIBRATION. M/A & R/I BHA + 52 STDS & 02 SGLS 5" DP UPTO 1750M. FRIIP
+__________________________________________________________________________________________
+ON LAND DEVELOPMENT WELLS
+1.ARMCUE-1 KGDJ Type: DI/ MODE:D /WD: T.Depth:3,882 Pr.Depth:3,337 Day Mtr:7
+RB Start: 16.01.2026 DR.Start:05.02.2026 PT.Start:24.04.2026 WO.Start:CRep/OutCyl:/
+Days RB.P/A:25/20 DR.P/A:92/56 PT.P/A:20/ TOT.P/A:137/76 WO P/A://
+LA no/A.Kick:/ Mw wt/visc:10.40/050 Lot:3,340/11.33 Litho:
+Obj No/Name: / Obj days: Obj interval:
+Cost in INR(Planned/Actual):/378,925,607.00 
+NL-1: LOC-NOT AVBL. Status: LOC#NA (NOT AVAILABLE) Cluster: N
+______________________________
+Phase no Csg Size Depth (P/A) Days(P/A) H.top
+1 20" 250/250 6/9 
+2 13 3/8" 2,300/2,276 36/27 
+3 9 5/8" 3,300/3,330 26/20 
+4 5 1/2" 3,876/3,900 24/22 
+OPER:R/I (30) SGLS 5” DP TILL 1929M. RECTIFIED PR GAUGE PROBLEM BY INSTRUMENTATION CREW.
+CHANGED ANALOG P R GAUGE ON H-MANIFOLD. PR TESTED SURFACE LINES. C/O GEL BREAK. RIH UPTO
+BTTM. CCM. CLEARED CMT. D/DN F/F UPTO 3337M. FURTHER C&C PRIOR TO PIT IIP. 
+__________________________________________________________________________________________
+2.E-1400-13 GKLG Type: DI/ MODE:R /WD: T.Depth:3,140 Pr.Depth: Day Mtr:
+RB Start: 31.03.2026 DR.Start: PT.Start: WO.Start:CRep/OutCyl:/
+Days RB.P/A:7/2 DR.P/A:70/ PT.P/A:20/ TOT.P/A:97/2 WO P/A://
+LA no/A.Kick:/ Mw wt/visc:/000 Lot:/ Litho:
+OIL AND NATURAL GAS CORPORATION LTD. Page No:1
+COMPANY : Assam Asset + RO
+DRILLING PROGRESS REPORT
+(06:00 Hrs of 01.04.2026 to 06:00 Hrs of 02.04.2026)
+___________________________________________________________________________
+Obj No/Name: / Obj days: Obj interval:
+Cost in INR(Planned/Actual):/373,789,219.00 
+NL-1: LOC-NOT AVBL. Status: LOC#NA (NOT AVAILABLE) Cluster: N
+______________________________
+Phase no Csg Size Depth (P/A) Days(P/A) H.top
+1 13 3/8" 400/400 8/15 
+2 9 5/8" 2,400/2,097 32/60 
+3 5 1/2" 3,140/ 30/ 
+OPER: M/A FOR RIG DRAGGING TO NEW POINT(#GKLG). FITTED DRAGGING PULLEYS. C/OUT MATERIAL
+REMOVAL NEAR BY D RAGGING AREA. C/OUT TUBULAR SHIFTING & TRANSPORTATION. 
+__________________________________________________________________________________________
+MOU PLAN: MONTH MTR:5,235 QTR MTR:21,965 YEAR MTR:106,162
+ACTUAL DAY MTR:149 MONTH MTR:149 QTR MTR:149 YEAR MTR:149

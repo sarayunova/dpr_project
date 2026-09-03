@@ -1,0 +1,58 @@
+0.E-760-10 DUMMY_E760-10 Type: DI/ MODE:O /WD: T.Depth: Pr.Depth: Day Mtr:
+RB Start: DR.Start: PT.Start: WO.Start:CRep/OutCyl:/3
+Days RB.P/A:/ DR.P/A:/ PT.P/A:/ TOT.P/A:/ WO P/A://
+LA no/A.Kick:/ Mw wt/visc:/000 Lot:/ Litho:
+Obj No/Name: / Obj days: Obj interval:
+Cost in INR(Planned/Actual):/
+NL-1: LOC-NOT AVBL. Status: LOC#NA (NOT AVAILABLE) Cluster: N
+______________________________
+Phase no Csg Size Depth (P/A) Days(P/A) H.top
+OPER:RIG E-760-10 STANDS RELEASED AT 06:00HRS ON 31.03.2026 FROM DEV WELL EL-01Z. FOLLOWING
+ITS RELEASE F ROM EL-01Z , THE COMPETENT AUTHORITY DIRECTED THE RIG'S TRANSFER TO THE MBA
+BASIN, KOLKATA. RIG IS OUT OF CYCLE FOR LONG DISTANCE MOVEMENT IN ACCORDANCE WITH
+ESTABLISHED PRACTICES. RIG DISMANTLING JOB S ARE IN PROGRESS. ACCIDENT NIL.
+__________________________________________________________________________________________
+ON LAND DEVELOPMENT WELLS
+1.E-1400-24 KHEK_DVP Type: DI/ MODE:R /WD: T.Depth:1,798 Pr.Depth: Day Mtr:
+RB Start: 29.03.2026 DR.Start: PT.Start: WO.Start:CRep/OutCyl:/
+Days RB.P/A:13/5 DR.P/A:23/ PT.P/A:11/ TOT.P/A:47/5 WO P/A://
+LA no/A.Kick:/ Mw wt/visc:/000 Lot:/ Litho:
+Obj No/Name: / Obj days: Obj interval:
+Cost in INR(Planned/Actual):/2,077,587.00
+NL-1: LOC-NOT AVBL. Status: LOC#NA (NOT AVAILABLE) Cluster: N
+______________________________
+Phase no Csg Size Depth (P/A) Days(P/A) H.top
+1 9 5/8" 650/ /
+2 5 1/2" 1,798/ /
+OPER:LOADED & DESPATCHED 04 TRAILERS FROM BREI TO KHEK. REMOVED REMAINING DRESSER COUPLING.
+R/DN IRD. FOL DED DS & ODS B-SEC MAST P/FORM. UNPIN & REMOVED ODS IRD SPREADER.FITTED DS
+B/BOX FRONT EXT. FITTED B/BOX FRONT SPREADER BEAM. UNPIN & REMOVED D/W SUPPORT DIAGONAL.
+LWRD D/WORKS. REEVED BULL LINE FOR P RIOR TO MAST LOWERING. M/A FOR MAST LOWERING & OTHER
+RIG DISMANTLING/TPTN IIP. ACC-NIL.
+__________________________________________________________________________________________
+2.E-760-9U KSDG_DVP Type: DI/ MODE:D /WD: T.Depth:2,422 Pr.Depth:2,121 Day Mtr:117
+RB Start: 19.02.2026 DR.Start:10.03.2026 PT.Start: WO.Start:CRep/OutCyl:/
+Days RB.P/A:12/19 DR.P/A:26/24 PT.P/A:15/ TOT.P/A:53/43 WO P/A://
+LA no/A.Kick:/ Mw wt/visc:9.10/053 Lot:1,475/10.66 Litho:SANDSTONE WITH CLAYSTONE
+Obj No/Name: / Obj days: Obj interval:
+Cost in INR(Planned/Actual):242,919,490.00 /62,114,865.00
+NL-1: LOC-NOT AVBL. Status: LOC#NA (NOT AVAILABLE) Cluster: N
+______________________________
+Phase no Csg Size Depth (P/A) Days(P/A) H.top
+1 13 3/8" 290/290 3/5
+2 9 5/8" 1,360/ 10/19
+3 5 1/2" 2,422/ 13/
+OPER:CONTD DRILLING 8-1/2" HOLE FROM 2004M TO 2080M. CCM PRIOR TO WIPER TRIP. PUMPED SLUG.
+B/OFF KELLY. P /OUT UP TO SHOE.OBSVD NO T/PULL.TESTED MWD TOOL WITH BOTH PUMP, F/OK. M/A
+AND R/I 21 STDS OF 5'' D/P. M/UP KELLY. WASH DOWN UP TO BOTTOM. OBSVD NO H/UP. RESUMED
+DRILLING FROM 2080M TO 2121M. FDIIP. AC CIDENT NIL.
+__________________________________________________________________________________________
+__________________________________________________________________________________________
+MOU PLAN: MONTH MTR:1,780 QTR MTR:6,683 YEAR MTR:30,364
+ACTUAL DAY MTR:117 MONTH MTR:277 QTR MTR:277 YEAR MTR:277
+-----------WELLS COMPLETED ----------------
+OIL AND NATURAL GAS CORPORATION LTD. Page No:1
+COMPANY : Assam & Assam Arakan Basin, Jorhat
+DRILLING PROGRESS REPORT
+(06:00 Hrs of 02.04.2026 to 06:00 Hrs of 03.04.2026)
+___________________________________________________________________________

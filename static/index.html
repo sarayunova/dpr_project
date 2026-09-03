@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Drilling DPR Monitor</title>
+<style>
+  :root {
+    --bg: #f7f7f5;
+    --panel: #ffffff;
+    --border: #ddd;
+    --text: #222;
+    --muted: #666;
+    --good: #1a7f37;
+    --good-bg: #e6f4ea;
+    --bad: #b3261e;
+    --bad-bg: #fbe9e7;
+    --neutral: #666;
+    --link: #0b57d0;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+  }
+  header {
+    padding: 1rem 1.5rem;
+    background: var(--panel);
+    border-bottom: 1px solid var(--border);
+  }
+  header h1 { margin: 0; font-size: 1.25rem; }
+  main { padding: 1.5rem; max-width: 1100px; margin: 0 auto; }
+  section { background: var(--panel); border: 1px solid var(--border); border-radius: 6px; padding: 1rem 1.25rem; margin-bottom: 1.25rem; }
+  section h2 { margin-top: 0; font-size: 1.05rem; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+  th, td { text-align: left; padding: 0.5rem 0.6rem; border-bottom: 1px solid var(--border); }
+  th { color: var(--muted); font-weight: 600; cursor: pointer; user-select: none; }
+  th:hover { color: var(--text); }
+  tbody tr:hover { background: #fafafa; cursor: pointer; }
+  .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .pill { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px; font-size: 0.8rem; }
+  .pill-good { background: var(--good-bg); color: var(--good); }
+  .pill-bad { background: var(--bad-bg); color: var(--bad); }
+  .pill-neutral { background: #eee; color: var(--neutral); }
+  .pill-pending { background: #fff4e5; color: #8a5a00; }
+  button { font: inherit; padding: 0.45rem 0.9rem; border-radius: 4px; border: 1px solid var(--border); background: #fff; cursor: pointer; }
+  button:hover { background: #f0f0f0; }
+  button.primary { background: var(--link); color: #fff; border-color: var(--link); }
+  button.primary:hover { background: #0a4bb8; }
+  a.back { color: var(--link); text-decoration: none; cursor: pointer; }
+  #upload-results div, #timeline .day, #ingest-error { margin-top: 0.5rem; }
+  .file-result { font-size: 0.85rem; padding: 0.35rem 0.5rem; border-radius: 4px; }
+  .file-result.ok { background: var(--good-bg); color: var(--good); }
+  .file-result.err { background: var(--bad-bg); color: var(--bad); }
+  #detail-identity { color: var(--muted); margin-bottom: 0.75rem; }
+  .variance-summary { display: flex; gap: 2rem; margin-bottom: 1rem; }
+  .variance-summary .metric { font-size: 1.4rem; font-weight: 600; }
+  .variance-summary .metric-label { font-size: 0.8rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.03em; }
+  .day { border: 1px solid var(--border); border-radius: 6px; padding: 0.75rem 1rem; margin-bottom: 0.75rem; }
+  .day-header { display: flex; flex-wrap: wrap; gap: 1rem; align-items: baseline; font-size: 0.9rem; }
+  .day-header .date { font-weight: 600; font-size: 1rem; }
+  .narrative { margin-top: 0.5rem; font-size: 0.9rem; color: var(--text); white-space: pre-wrap; }
+  .repair-event { margin-top: 0.5rem; padding: 0.5rem 0.75rem; background: #fff8e1; border-radius: 4px; font-size: 0.85rem; }
+  .repair-event .equip { font-weight: 600; }
+  .repair-event .snippet { color: var(--muted); font-style: italic; }
+  [hidden] { display: none !important; }
+  .muted { color: var(--muted); }
+  header { display: flex; align-items: center; justify-content: space-between; }
+  nav a { color: var(--link); text-decoration: none; margin-left: 1.25rem; font-size: 0.9rem; cursor: pointer; }
+  nav a.active { font-weight: 600; text-decoration: underline; }
+  .review-item { border: 1px solid var(--border); border-radius: 6px; padding: 0.75rem 1rem; margin-bottom: 0.75rem; }
+  .review-item .meta { display: flex; flex-wrap: wrap; gap: 1rem; align-items: baseline; font-size: 0.9rem; }
+  .review-item .well { font-weight: 600; color: var(--link); cursor: pointer; }
+  .review-item .snippet { margin-top: 0.4rem; font-style: italic; color: var(--text); }
+  .review-item .actions { margin-top: 0.6rem; display: flex; gap: 0.5rem; }
+  button.confirm { background: var(--good-bg); color: var(--good); border-color: var(--good-bg); }
+  button.confirm:hover { background: #d3ecda; }
+  button.dismiss { background: var(--bad-bg); color: var(--bad); border-color: var(--bad-bg); }
+  button.dismiss:hover { background: #f6d6d1; }
+  #review-count { background: #eee; border-radius: 999px; padding: 0 0.5rem; font-size: 0.8rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Drilling DPR Monitor</h1>
+  <nav>
+    <a id="nav-wells" class="active">Wells</a>
+    <a id="nav-review">Review queue <span id="review-count" hidden>0</span></a>
+  </nav>
+</header>
+
+<main>
+
+<div id="view-wells">
+  <section id="upload">
+    <h2>Upload DPR PDFs</h2>
+    <input type="file" id="file-input" multiple accept="application/pdf">
+    <button class="primary" id="ingest-btn">Ingest</button>
+    <div id="upload-results"></div>
+  </section>
+
+  <section id="wells">
+    <h2>Wells</h2>
+    <table>
+      <thead>
+        <tr>
+          <th data-sort="well_name">Well</th>
+          <th data-sort="location_code">Location</th>
+          <th data-sort="asset_name">Asset</th>
+          <th data-sort="category">Category</th>
+          <th data-sort="latest_report_date">Latest report</th>
+          <th data-sort="tot_days_actual" class="num">Days (P/A)</th>
+          <th data-sort="cost_actual_inr" class="num">Cost (P/A)</th>
+          <th data-sort="status_text">Status</th>
+        </tr>
+      </thead>
+      <tbody id="wells-tbody"></tbody>
+    </table>
+    <p id="wells-empty" class="muted" hidden>No wells ingested yet — upload a DPR PDF above.</p>
+  </section>
+</div>
+
+<div id="view-detail" hidden>
+  <p><a class="back" id="back-link">&larr; Back to wells</a></p>
+  <section>
+    <h2 id="detail-title"></h2>
+    <div id="detail-identity"></div>
+    <div class="variance-summary" id="variance-summary"></div>
+    <table id="phase-table">
+      <thead>
+        <tr><th>Phase</th><th>Casing</th><th class="num">Depth (P/A)</th><th class="num">Days variance</th></tr>
+      </thead>
+      <tbody id="phase-tbody"></tbody>
+    </table>
+  </section>
+  <section>
+    <h2>Daily timeline</h2>
+    <div id="timeline"></div>
+  </section>
+</div>
+
+<div id="view-review" hidden>
+  <section>
+    <h2>Repair/troubleshooting review queue</h2>
+    <p class="muted">Every flag below is machine-generated and unconfirmed — confirm it as a real issue, or dismiss it as a false positive, so the model's real precision can be measured over time.</p>
+    <div id="review-list"></div>
+    <p id="review-empty" class="muted" hidden>Nothing waiting for review.</p>
+  </section>
+</div>
+
+</main>
+
+<script>
+'use strict';
+
+let wellsCache = [];
+let sortKey = 'well_name';
+let sortDir = 1;
+
+function fmtNum(n) {
+  if (n === null || n === undefined) return '—';
+  return typeof n === 'number' ? n.toLocaleString() : n;
+}
+
+function fmtDate(d) {
+  return d || '—';
+}
+
+function variancePill(actual, planned, pct) {
+  if (actual === null || actual === undefined || planned === null || planned === undefined) {
+    return '<span class="pill pill-neutral">' + fmtNum(actual) + ' / ' + fmtNum(planned) + '</span>';
+  }
+  const cls = pct === null || pct === undefined ? 'pill-neutral' : (pct > 0 ? 'pill-bad' : (pct < 0 ? 'pill-good' : 'pill-neutral'));
+  const pctText = pct === null || pct === undefined ? '' : ' (' + (pct > 0 ? '+' : '') + pct.toFixed(1) + '%)';
+  return '<span class="pill ' + cls + '">' + fmtNum(planned) + ' / ' + fmtNum(actual) + pctText + '</span>';
+}
+
+function variancePct(actual, planned) {
+  if (actual === null || actual === undefined || planned === null || planned === undefined || planned === 0) return null;
+  return (actual - planned) / planned * 100;
+}
+
+async function loadWells() {
+  const res = await fetch('/api/wells');
+  wellsCache = await res.json();
+  renderWellsTable();
+}
+
+function renderWellsTable() {
+  const tbody = document.getElementById('wells-tbody');
+  const empty = document.getElementById('wells-empty');
+  const rows = [...wellsCache].sort((a, b) => {
+    const av = a[sortKey], bv = b[sortKey];
+    if (av === null || av === undefined) return 1;
+    if (bv === null || bv === undefined) return -1;
+    if (av < bv) return -1 * sortDir;
+    if (av > bv) return 1 * sortDir;
+    return 0;
+  });
+
+  tbody.innerHTML = '';
+  empty.hidden = rows.length > 0;
+
+  for (const w of rows) {
+    const tr = document.createElement('tr');
+    tr.addEventListener('click', () => openWell(w.id));
+    const daysPct = variancePct(w.tot_days_actual, w.tot_days_planned);
+    const costPct = variancePct(w.cost_actual_inr, w.cost_planned_inr);
+    tr.innerHTML =
+      '<td>' + w.well_name + '</td>' +
+      '<td>' + (w.location_code || '—') + '</td>' +
+      '<td>' + (w.asset_name || '—') + '</td>' +
+      '<td>' + (w.category || '—') + '</td>' +
+      '<td>' + fmtDate(w.latest_report_date) + '</td>' +
+      '<td class="num">' + variancePill(w.tot_days_actual, w.tot_days_planned, daysPct) + '</td>' +
+      '<td class="num">' + variancePill(w.cost_actual_inr, w.cost_planned_inr, costPct) + '</td>' +
+      '<td>' + (w.status_text || '—') + '</td>';
+    tbody.appendChild(tr);
+  }
+}
+
+document.querySelectorAll('th[data-sort]').forEach((th) => {
+  th.addEventListener('click', () => {
+    const key = th.dataset.sort;
+    sortDir = (sortKey === key) ? -sortDir : 1;
+    sortKey = key;
+    renderWellsTable();
+  });
+});
+
+document.getElementById('ingest-btn').addEventListener('click', async () => {
+  const input = document.getElementById('file-input');
+  const resultsEl = document.getElementById('upload-results');
+  if (!input.files.length) return;
+
+  const formData = new FormData();
+  for (const file of input.files) formData.append('files', file);
+
+  resultsEl.innerHTML = '<div class="muted">Ingesting…</div>';
+  try {
+    const res = await fetch('/api/ingest', { method: 'POST', body: formData });
+    const body = await res.json();
+    resultsEl.innerHTML = '';
+    for (const item of body.ingested) {
+      const div = document.createElement('div');
+      div.className = 'file-result ok';
+      div.textContent = item.filename + ': ' + item.wells_ingested + ' well(s) ingested, ' +
+        item.repair_events_created + ' repair event(s) flagged (' + item.asset_name + ', ' + item.report_date + ')';
+      resultsEl.appendChild(div);
+    }
+    for (const item of body.errors) {
+      const div = document.createElement('div');
+      div.className = 'file-result err';
+      div.textContent = item.filename + ': ' + item.error;
+      resultsEl.appendChild(div);
+    }
+  } catch (e) {
+    resultsEl.innerHTML = '<div class="file-result err">Upload failed: ' + e + '</div>';
+  }
+  input.value = '';
+  loadWells();
+  loadReviewQueue();
+});
+
+async function openWell(id) {
+  location.hash = 'well/' + id;
+  const [detailRes, varianceRes] = await Promise.all([
+    fetch('/api/wells/' + id),
+    fetch('/api/wells/' + id + '/variance'),
+  ]);
+  const detail = await detailRes.json();
+  const variance = varianceRes.ok ? await varianceRes.json() : null;
+  renderDetail(detail, variance);
+  showView('detail');
+}
+
+function renderDetail(detail, variance) {
+  const well = detail.well;
+  document.getElementById('detail-title').textContent = well.well_name;
+  document.getElementById('detail-identity').textContent =
+    (well.location_code || '—') + ' · ' + (well.asset_name || '—') +
+    (well.category ? ' · ' + well.category : '') +
+    (well.target_depth ? ' · target ' + fmtNum(well.target_depth) + 'm' : '');
+
+  const summaryEl = document.getElementById('variance-summary');
+  const phaseTbody = document.getElementById('phase-tbody');
+  if (variance) {
+    summaryEl.innerHTML =
+      metricHtml('Days variance', variance.days_variance_pct) +
+      metricHtml('Cost variance', variance.cost_variance_pct);
+    phaseTbody.innerHTML = variance.phases.map((p) =>
+      '<tr><td>' + p.phase_no + '</td><td>' + (p.casing_size || '—') + '</td>' +
+      '<td class="num">' + fmtNum(p.depth_planned) + ' / ' + fmtNum(p.depth_actual) + '</td>' +
+      '<td class="num">' + pctPill(p.days_variance_pct) + '</td></tr>'
+    ).join('');
+  } else {
+    summaryEl.innerHTML = '<span class="muted">No reports ingested for this well yet.</span>';
+    phaseTbody.innerHTML = '';
+  }
+
+  const timelineEl = document.getElementById('timeline');
+  const days = [...detail.timeline].sort((a, b) => a.report_date < b.report_date ? 1 : -1); // most recent first
+  timelineEl.innerHTML = '';
+  if (days.length === 0) {
+    timelineEl.innerHTML = '<p class="muted">No daily reports for this well yet.</p>';
+  }
+  for (const day of days) {
+    const div = document.createElement('div');
+    div.className = 'day';
+    div.innerHTML =
+      '<div class="day-header">' +
+        '<span class="date">' + day.report_date + '</span>' +
+        '<span>mode: ' + (day.mode || '—') + '</span>' +
+        '<span>depth: ' + fmtNum(day.present_depth) + (day.day_meterage ? ' (+' + fmtNum(day.day_meterage) + 'm)' : '') + '</span>' +
+        '<span>days: ' + variancePill(day.tot_days_actual, day.tot_days_planned, variancePct(day.tot_days_actual, day.tot_days_planned)) + '</span>' +
+        '<span>cost: ' + variancePill(day.cost_actual_inr, day.cost_planned_inr, variancePct(day.cost_actual_inr, day.cost_planned_inr)) + '</span>' +
+        '<span>' + (day.status_text || '') + '</span>' +
+      '</div>' +
+      (day.oper_narrative ? '<div class="narrative">' + escapeHtml(day.oper_narrative) + '</div>' : '') +
+      day.repair_events.map((ev) =>
+        '<div class="repair-event">' +
+          '<span class="equip">' + escapeHtml(ev.equipment_or_system) + '</span>' +
+          ' <span class="pill ' + reviewStatusClass(ev) + '">' + reviewStatusText(ev) + '</span>' +
+          ' <span class="pill pill-neutral">' + ev.confidence + ' confidence</span>' +
+          '<div class="snippet">“' + escapeHtml(ev.snippet) + '”</div>' +
+        '</div>'
+      ).join('');
+    timelineEl.appendChild(div);
+  }
+}
+
+function metricHtml(label, pct) {
+  const cls = pct === null || pct === undefined ? 'pill-neutral' : (pct > 0 ? 'pill-bad' : (pct < 0 ? 'pill-good' : 'pill-neutral'));
+  const text = pct === null || pct === undefined ? '—' : (pct > 0 ? '+' : '') + pct.toFixed(1) + '%';
+  return '<div><div class="metric-label">' + label + '</div><div class="metric ' + cls + '">' + text + '</div></div>';
+}
+
+function pctPill(pct) {
+  const cls = pct === null || pct === undefined ? 'pill-neutral' : (pct > 0 ? 'pill-bad' : (pct < 0 ? 'pill-good' : 'pill-neutral'));
+  const text = pct === null || pct === undefined ? '—' : (pct > 0 ? '+' : '') + pct.toFixed(1) + '%';
+  return '<span class="pill ' + cls + '">' + text + '</span>';
+}
+
+function escapeHtml(s) {
+  const div = document.createElement('div');
+  div.textContent = s;
+  return div.innerHTML;
+}
+
+function reviewStatusClass(ev) {
+  if (!ev.reviewed) return 'pill-pending';
+  return ev.outcome === 'false_positive' ? 'pill-bad' : 'pill-good';
+}
+
+function reviewStatusText(ev) {
+  if (!ev.reviewed) return 'pending review';
+  return ev.outcome === 'false_positive' ? 'dismissed (false positive)' : 'confirmed';
+}
+
+// ---------------------------------------------------------------------------
+// Screen 3: repair/troubleshooting review queue
+// ---------------------------------------------------------------------------
+
+async function loadReviewQueue() {
+  const res = await fetch('/api/repairs/unreviewed');
+  const events = await res.json();
+  renderReviewQueue(events);
+  return events;
+}
+
+function renderReviewQueue(events) {
+  const listEl = document.getElementById('review-list');
+  const emptyEl = document.getElementById('review-empty');
+  const countEl = document.getElementById('review-count');
+
+  countEl.textContent = events.length;
+  countEl.hidden = events.length === 0;
+  emptyEl.hidden = events.length > 0;
+
+  listEl.innerHTML = '';
+  for (const ev of events) {
+    const div = document.createElement('div');
+    div.className = 'review-item';
+    div.innerHTML =
+      '<div class="meta">' +
+        '<span class="well" data-well="' + escapeHtml(ev.well_name) + '">' + escapeHtml(ev.well_name) + '</span>' +
+        '<span>' + ev.report_date + '</span>' +
+        '<span class="equip">' + escapeHtml(ev.equipment_or_system) + '</span>' +
+        '<span class="pill pill-neutral">' + ev.confidence + ' confidence</span>' +
+      '</div>' +
+      '<div class="snippet">“' + escapeHtml(ev.snippet) + '”</div>' +
+      '<div class="actions">' +
+        '<button class="confirm" data-id="' + ev.repair_id + '" data-outcome="confirmed">Confirm — real issue</button>' +
+        '<button class="dismiss" data-id="' + ev.repair_id + '" data-outcome="false_positive">Dismiss — false positive</button>' +
+      '</div>';
+    div.querySelector('.well').addEventListener('click', async () => {
+      await loadWells();
+      const well = wellsCache.find((w) => w.well_name === ev.well_name);
+      if (well) openWell(well.id);
+    });
+    for (const btn of div.querySelectorAll('button')) {
+      btn.addEventListener('click', () => reviewEvent(btn.dataset.id, btn.dataset.outcome));
+    }
+    listEl.appendChild(div);
+  }
+}
+
+async function reviewEvent(repairId, outcome) {
+  await fetch('/api/repairs/' + repairId + '/review', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ outcome: outcome }),
+  });
+  loadReviewQueue();
+}
+
+function showView(name) {
+  document.getElementById('view-wells').hidden = name !== 'wells';
+  document.getElementById('view-detail').hidden = name !== 'detail';
+  document.getElementById('view-review').hidden = name !== 'review';
+  document.getElementById('nav-wells').classList.toggle('active', name === 'wells' || name === 'detail');
+  document.getElementById('nav-review').classList.toggle('active', name === 'review');
+}
+
+document.getElementById('back-link').addEventListener('click', () => {
+  location.hash = '';
+});
+
+document.getElementById('nav-wells').addEventListener('click', () => { location.hash = ''; });
+document.getElementById('nav-review').addEventListener('click', () => { location.hash = 'review'; });
+
+async function route() {
+  const wellMatch = location.hash.match(/^#well\/(\d+)$/);
+  if (wellMatch) {
+    await loadWells(); // ensure cache exists for back navigation
+    showView('detail');
+    openWell(wellMatch[1]);
+  } else if (location.hash === '#review') {
+    showView('review');
+    loadReviewQueue();
+  } else {
+    showView('wells');
+  }
+}
+
+window.addEventListener('hashchange', route);
+loadWells();
+loadReviewQueue(); // populates the nav badge count even before visiting the tab
+route();
+</script>
+
+</body>
+</html>

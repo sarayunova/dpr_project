@@ -1,0 +1,146 @@
+[
+  {
+    "id": 1,
+    "source": "sample_dpr.txt::NG-2000-4",
+    "narrative_text": "RECTIFIED OIL LEAKAGE FROM DW. CLEARED CMT FROM 3584M TO 3591M. C/O PREVENTIVE MAINTENANCE OF CATWAL K. GREASED TDS ELEVATOR. CLEARED CMT FROM 3591M TO 3595M. C&C MUD INTERMITTENTLY.",
+    "expected_should_flag": true,
+    "expected_equipment": "DW (drawworks)",
+    "notes": "Preventive maintenance mentioned in the same narrative should NOT itself be flagged -- tests whether the model correctly separates the two."
+  },
+  {
+    "id": 7,
+    "source": "sample_dpr_assam_ro_day2.txt::EV-2000-5",
+    "narrative_text": "RE-WINDING OF TDS RIGHT BLOWER MOTOR AT BASE. RECEIVED TDS BLOWER MOTOR @ 19:30 HRS. FITTED SAME. TE STED TDS MOTOR BLOWER, CHECKED ALL FUNCTIONS FOUND OK. R/I UPTO 394M, D/JAR BRT @ 03:30 HRS. TESTEDMWD TOOL, OK. GEL BREAK AT C/SHOE PRIOR TO FURTHER R/I IIP",
+    "expected_should_flag": true,
+    "expected_equipment": "TDS blower motor",
+    "notes": "Rewinding implies prior fault; a full received/fitted/tested cycle is stated. Good test of confidence calibration."
+  },
+  {
+    "id": 4,
+    "source": "sample_dpr.txt::E-1400-13",
+    "narrative_text": "M/A FOR RIG DRAGGING TO NEW POINT(#GKLG). FITTED DRAGGING PULLEYS. C/OUT MATERIAL REMOVAL NEAR BY D RAGGING AREA. C/OUT TUBULAR SHIFTING & TRANSPORTATION.",
+    "expected_should_flag": false,
+    "expected_equipment": null,
+    "notes": "Routine rig-move activity, no fault language."
+  },
+  {
+    "id": 6,
+    "source": "sample_dpr_assam_ro_day2.txt::EV-2000-4",
+    "narrative_text": "BAKER HUGHES PARTY REPORTED D/SITE @ 06:30 HRS. PREPARATION OF TCP GUN IIP. M/W P/O 2-7/8” TBG WITH BB SHOE FROM 1015M TO SURFACE. REPLACED B/OFF TONG DAMAGED JERK LINE WITH NEW ONE. REPLACED D/WORKSENCODER BY FMP(E), TESTED OK. B/OFF & L/DN 10 STDS 5” DP INTO SGLS. P/UP TCP GUN ASSY. LOWERED GUN + 85 STDS 2-7/8” TBG UPTO 2500M. FRIIP.",
+    "expected_should_flag": true,
+    "expected_equipment": "tong jerk line; drawworks encoder",
+    "notes": "Two distinct repairs in one narrative -- tests multi-event detection. Corrects a prior doc bug that misattributed this content to NG-2000-6 with fabricated wording."
+  },
+  {
+    "id": 8,
+    "source": "sample_dpr_tripura.txt::NG-2000-2",
+    "narrative_text": "F/P/O 7 (T: 12 ) 5” STDS. OBSD CONT. T/PULL,CLRD BY PUMP/OUT & B/REAM. P/OUT@1725-1674 ,1599-1570 & B/REAM@ 1674-1599 M. F/ P/O 02 STDS (T: 14) UPTO 1484 M. ARRESTED LEAKAGE OF TDS. RIH SGL BY SGL 36 NO 5” DP UPTO 1800 M. F/R/I 02 STD, W/DN & TAG BTM@ 1858 M. OBSD NO H/UP WHILE R/I. CCM. D/DN 12-1 /4” HOLE F/ 1858 M - 1967 M. FDIIP. BIT: M516M-P, M/HR: 109/9.5, CUM M/HR: 445/33.5, CR:45T-01",
+    "expected_should_flag": true,
+    "expected_equipment": "TDS (top drive system)",
+    "notes": "'ARRESTED LEAKAGE OF TDS' is a near-exact match to the system prompt's own worked example ('arrested leakage from riser') -- should be an easy case."
+  },
+  {
+    "id": 9,
+    "source": "sample_dpr_assam_ro_day2.txt::E-3000-1",
+    "narrative_text": "B/OFF & L/DN 5 STDS INTO 15 SGLS OF 5\" D/P. M/A FOR 2-7/8\" TBG R/I. N/UP 7-1/16\" D/RAM BOP. TIGHTENE D THE JOINTS B/W 7-1/16\" 10M D/RAM BOP & 7-1/16\" X 10M- 11\" X 10M TBG SPOOL. FUNCTION TESTED BOP, FOUND OK. M/A & R/I 5-1/2” SCRAPPER + 80 NOS 2-7/8” TBG SGL BY SGL UPTO 780M. FRIIP",
+    "expected_should_flag": false,
+    "expected_equipment": null,
+    "notes": "Routine test that passes -- no fault stated."
+  },
+  {
+    "id": 10,
+    "source": "sample_dpr_assam_ro_day2.txt::M-6100-1",
+    "narrative_text": "CONTD SURFACE CIRC FOR CLEARING DEBRIS. M/UP DD ASSY.M/A & R/I 8-1/2\" BIT & BAKER ATK + OTK ASSY + 0 1 STD 6-1/2\" D/C + 04 SGL 5\" HWDP + 01 D/JAR + 13 SGLS 5\" HWDP + 01 STD 5\" D/P. TESTED MWD TOOL, OK. M/A & R/I 39 NOS 5\" DP STDS UPTO 1371M. TOOL TESTED OK. R/I 39 NOS 5\" DP STDS UPTO 2524M. TOOL TEST ED OK. FRIIP.",
+    "expected_should_flag": false,
+    "expected_equipment": null,
+    "notes": "Same 'tested, OK' pattern as row 9, different equipment (MWD tool)."
+  },
+  {
+    "id": 11,
+    "source": "sample_dpr_assam_arakan.txt::E-760-9U",
+    "narrative_text": "CONTD DRILLING 8-1/2\" HOLE FROM 2004M TO 2080M. CCM PRIOR TO WIPER TRIP. PUMPED SLUG. B/OFF KELLY. P /OUT UP TO SHOE.OBSVD NO T/PULL.TESTED MWD TOOL WITH BOTH PUMP, F/OK. M/A AND R/I 21 STDS OF 5'' D/P. M/UP KELLY. WASH DOWN UP TO BOTTOM. OBSVD NO H/UP. RESUMED DRILLING FROM 2080M TO 2121M. FDIIP. AC CIDENT NIL.",
+    "expected_should_flag": false,
+    "expected_equipment": null,
+    "notes": "Third instance of the 'tested, OK' pattern, different asset -- checks the model generalizes past specific equipment nouns."
+  },
+  {
+    "id": 12,
+    "source": "sample_dpr_tripura.txt::E-1400-M2",
+    "narrative_text": "N/UP XMAS TREE.& TESTED FLANGE @ 9000PSI.F/OK .M/UP SURFACE CMT LINE & TEST@5000 PSI F/OK.CHANGEOVER ED WELL VOLUME 1.5SG MUD WITH WATER BY CMT UNIT & RIG PUMP.R/UP PCE.RIH DUMMY TOOL UPTO 3828M.OBSDBB SHOE AT 3806.6M.POOH DUMMY TOOL.TESTED PCE @ 8000 PSI F/OK. WAITING ON DAYLIGHT FOR TTP JOB.M/WHI LE LAID SURFACE PRO/LINES,CLEANED CELLAR PIT AND RIG EQUIPMENT.CRANE 40 T :02 NOS.#",
+    "expected_should_flag": false,
+    "expected_equipment": null,
+    "notes": "Multiple pressure tests in sequence, all passing."
+  },
+  {
+    "id": 13,
+    "source": "sample_dpr_assam_arakan.txt::E-1400-24",
+    "narrative_text": "LOADED & DESPATCHED 04 TRAILERS FROM BREI TO KHEK. REMOVED REMAINING DRESSER COUPLING. R/DN IRD. FOL DED DS & ODS B-SEC MAST P/FORM. UNPIN & REMOVED ODS IRD SPREADER.FITTED DS B/BOX FRONT EXT. FITTED B/BOX FRONT SPREADER BEAM. UNPIN & REMOVED D/W SUPPORT DIAGONAL. LWRD D/WORKS. REEVED BULL LINE FOR P RIOR TO MAST LOWERING. M/A FOR MAST LOWERING & OTHER RIG DISMANTLING/TPTN IIP. ACC-NIL.",
+    "expected_should_flag": false,
+    "expected_equipment": null,
+    "notes": "Routine rig-move/dismantling -- same category as row 4 but a different asset, to check the model isn't keying off asset-specific phrasing."
+  },
+  {
+    "id": 14,
+    "source": "sample_dpr_tripura.txt::E-1400-14",
+    "narrative_text": "CONT. RIG DISMANTLING. L/DN DOGHOUSE AND ITS UNDER STRUCTURE. DISMANTLED IRD UNDERSTRUCTURE. M/A AND LOWERED D/WORKS. REEVED BULL LINE FOR MAST LOWERING. PJSM. M/A AND LOWERED MAST. OPENED DEAD END. DE-REEVING OF CASING LINE IS IN PROGRESS. CRANE:40T-03.",
+    "expected_should_flag": false,
+    "expected_equipment": null,
+    "notes": "Second rig-dismantling reinforcement, third asset."
+  },
+  {
+    "id": 15,
+    "source": "sample_dpr_assam_ro_day2.txt::NG-2000-6",
+    "narrative_text": "R/I 23 STDS + 12 SGLS 5\" DP UPTO 2535M. M/A & R/I UPTO 3295M. OBSD H/UP. CLEARED WITH PUMPS. R/I UP TO 3675M. OBSD H/UP. CLEARED WITH PUMPS. R/I UPTO 3750M. OBSD H/UP. R/DN FROM 3750M TO 3796M (BTTM). OBSD HIGH FLUCTUATING TORQUES WHILE R/DN. CCM. D/DN 12¼\" HOLE FROM 3796M TO 3798M. FDIIP",
+    "expected_should_flag": false,
+    "expected_equipment": null,
+    "notes": "AMBIGUOUS -- explicit reasoning: 'H/UP' (hang-up) is drillstring resistance while tripping, a normal drilling hazard cleared by standard procedure (pumping), not an equipment fault. Do not conflate 'cleared a problem' with 'repaired/troubleshot equipment'."
+  },
+  {
+    "id": 16,
+    "source": "sample_dpr_assam_ro_day2.txt::NG-1500-6",
+    "narrative_text": "R/I (03) STDS 5” HWDP + (07) STDS 5” DP UPTO C/SHOE. R/I 46 STDS 5\" D/P & TAGGED BTTM @ 1716M. OBSD H/UP @ 1374-1378M, 1530-1534M, 1550-1552M, 1568M, 1574M, 1592M & 1608-1613M. CLEARED BY RECIPROCATION MULTIPLE TIMES. C/O TOOL TEST @ 1445M. CCM. D/DN 17-1/2\" HOLE FROM 1716M TO 1750M. FDIIP",
+    "expected_should_flag": false,
+    "expected_equipment": null,
+    "notes": "Same hang-up-is-not-equipment-fault case as row 15, different clearing method (reciprocation vs. pumping) and different well -- guards against the model latching onto one specific verb."
+  },
+  {
+    "id": 17,
+    "source": "sample_dpr_tripura.txt::NG-2000-3",
+    "narrative_text": "N/DN X-MASS TREE.N/UP PBOP & TIGHTENED IT'S BOLTS. C/O FUNCTION TEST & PR. TEST OF PBOP AS PER STAND ARD GUIDELINES, OK.M/A & L/DN TBG HANGER. R/I 08 SGLS OF 2-7/8\" TBG UPTO 3850M. CCM. PLACED 225M OFHV WATER CUSHION.B/OFF & L/DN 21 SGLS OF 2 7/8\" TBG SGL BY SGL. P/O 64 STDS OF 2 7/8\" TBG UPTO 1805M . FPOIP. TUBING GETTING STUCK IN THE TBG SPINNER FREQUENTLY.JOINTS WERE TOO TIGHT.CRANE: 45 T- 02",
+    "expected_should_flag": false,
+    "expected_equipment": null,
+    "notes": "AMBIGUOUS -- borderline case. Describes an operational problem but states no diagnostic or corrective action ('rectified', 'adjusted', 'replaced'). The system prompt asks for time spent FIXING, not problem-mentions alone. Revisit if real outcomes later show this kind of narrative should count."
+  },
+  {
+    "id": 18,
+    "source": "sample_dpr_tripura.txt::E-1400-M1",
+    "narrative_text": "N/DN PBOP, N/UP XMAS TREE, TESTED @6000PSI, OK. C/O C/OVER FROM 13.2PPG MUD TO TECH. WATER. R/UP LOG . UNIT, C/O PCE TEST, OK. R/I 2-1/8\" DUMMY GR-CCL TOOL UPTO 2589.66M, TAGGED BOTTOM. REC. CORR. LOGB/W 2589.66M.-2400M. P/O UPTO SURFACE. LOWERED 2\" TTP GUN UPTO 100M. FOR PERFORATION IN INTERVAL 258 5M-2587.5M. WUO, STHP/SCHP-0/0 . WAITING FOR DAYLIGHT FOR STIM PERF. JOB IIP. 40T CRANE-01",
+    "expected_should_flag": false,
+    "expected_equipment": null,
+    "notes": "Routine completion-ops sequence, nothing reactive."
+  },
+  {
+    "id": 19,
+    "source": "sample_dpr_tripura.txt::NG-2000-1",
+    "narrative_text": "WKO THRU TUBING TO FLARE TIP VIA 8MM BEAN.@1300HRS. FTHP- 0PSI & SCHP-525 PSI. R/UP LN2 UNIT & TESTE D SURFACE LINES. OBSD N2 CUT AT 1577 PSI.R/DN LN2 UNIT. WKO THRU TUBING TO FLARE TIP VIA 8MM BEAN. OBSD. FTHP:0PSI, SCHP:200PSI.DISPLACED WELL VOLUME WITH WATER. SUBDUE WELL WITH 12.5 PPG MUD. CCM 01 CYCLE. WUO. OBSD MINOR FLUID RETURNS; CONTINUING CCM IIP. CRANE:45T-01/110T-01.",
+    "expected_should_flag": false,
+    "expected_equipment": null,
+    "notes": "Routine well-kill/workover circulation -- 'minor fluid returns' is monitored, not a stated fault being fixed."
+  },
+  {
+    "id": 20,
+    "source": "sample_dpr_assam_ro_day2.txt::ARMCUE-1",
+    "narrative_text": "D/DN FROM 3337M TO 3340M.M/A FOR PIT. OBSD PIT 11.3 PPG MWE (SURFACE PR: 640 PSI WITH 10.2 PPG MUD @ 3330M).P/O (55) STDS 5” DP UPTO 1757M. P/O (12) STDS 5” DP. POOH. B/OFF & L/DN 8.5” TCR BIT. MA FOR CBL-VDL LOGGING, R/UP LOGGING TOOLS. FURTHER RECORDING OF MAIN PASS IN CBL-VDL LOG IIP.",
+    "expected_should_flag": false,
+    "expected_equipment": null,
+    "notes": "Routine logging prep, no fault language. Source corrected 2026-09-04: this is ARMCUE-1's day-2 narrative, not sample_dpr.txt's (day 1) -- see id 21 for that one, which is a real repair narrative this entry was originally (incorrectly) conflated with."
+  },
+  {
+    "id": 21,
+    "source": "sample_dpr.txt::ARMCUE-1",
+    "narrative_text": "R/I (30) SGLS 5” DP TILL 1929M. RECTIFIED PR GAUGE PROBLEM BY INSTRUMENTATION CREW. CHANGED ANALOG PR GAUGE ON H-MANIFOLD. PR TESTED SURFACE LINES. C/O GEL BREAK. RIH UPTO BTTM. CCM. CLEARED CMT. D/DN F/F UPTO 3337M. FURTHER C&C PRIOR TO PIT IIP.",
+    "expected_should_flag": true,
+    "expected_equipment": "PR (pressure) gauge",
+    "notes": "ARMCUE-1's actual sample_dpr.txt (day 1) narrative -- clear fault plus a stated corrective action (gauge changed). Confirmed live: qwen2.5:7b-instruct correctly flagged this with equipment_or_system 'PR gauge', confidence 'high', during Phase 6 browser testing."
+  }
+]

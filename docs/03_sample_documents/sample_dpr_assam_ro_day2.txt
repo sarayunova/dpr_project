@@ -1,0 +1,255 @@
+ON LAND EXPLORATORY WELLS
+1.NG-2000-4 HPAA Type: DI/ MODE:D /WD: T.Depth:4,394 Pr.Depth:3,616 Day Mtr:4
+RB Start: 09.09.2025 DR.Start:15.12.2025 PT.Start: WO.Start:CRep/OutCyl:/
+Days RB.P/A:25/47 DR.P/A:145/109 PT.P/A:20/ TOT.P/A:190/156 WO P/A://
+LA no/A.Kick:/ Mw wt/visc:11.30/046 Lot:3,616/11.35 Litho:
+Obj No/Name: / Obj days: Obj interval:
+Cost in INR(Planned/Actual):886,323,863.00 /960,346,238.00
+NL-1: LOC-NOT AVBL. Status: LOC#NA (NOT AVAILABLE) Cluster: N
+______________________________
+Phase no Csg Size Depth (P/A) Days(P/A) H.top
+1 20" 450/453 8/12
+2 13 3/8" 2,400/2,404 34/53
+3 9 5/8" 3,600/3,606 42/44
+4 5 1/2" 4,394/ 61/63
+OPER:CLEARED CMT FROM 3595M TO 3597M.CLEARED CMT. D/DN F/FORMATION UPTO 3616M. C/O
+CIRCULATION FOR BTTMS UP. FURTHER CCM PRIOR TO LOT IIP
+__________________________________________________________________________________________
+2.NG-2000-6 LKBF Type: DI/ MODE:D /WD: T.Depth:4,842 Pr.Depth:3,798 Day Mtr:2
+RB Start: 17.12.2025 DR.Start:18.12.2025 PT.Start:11.07.2026 WO.Start:CRep/OutCyl:/
+Days RB.P/A:1/ DR.P/A:177/106 PT.P/A:20/ TOT.P/A:198/106 WO P/A://
+LA no/A.Kick:/ Mw wt/visc:11.40/052 Lot:2,580/11.70 Litho:CLAYSTONE AND SANDSTONE
+Obj No/Name: / Obj days: Obj interval:
+Cost in INR(Planned/Actual):1,119,328,853.00 /864,337,940.00
+NL-1: LOC-NOT AVBL. Status: LOC#NA (NOT AVAILABLE) Cluster: N
+______________________________
+Phase no Csg Size Depth (P/A) Days(P/A) H.top
+1 20" 400/451 8/12
+2 13 3/8" 2,420/2,570 42/53
+3 9 5/8" 4,130/4,127 58/75
+4 5 1/2" 4,842/4,840 69/60
+OPER:R/I 23 STDS + 12 SGLS 5" DP UPTO 2535M. M/A & R/I UPTO 3295M. OBSD H/UP. CLEARED WITH
+PUMPS. R/I UP TO 3675M. OBSD H/UP. CLEARED WITH PUMPS. R/I UPTO 3750M. OBSD H/UP. R/DN FROM
+3750M TO 3796M (BTTM). OBSD HIGH FLUCTUATING TORQUES WHILE R/DN. CCM. D/DN 12¼" HOLE FROM
+3796M TO 3798M. FDIIP
+__________________________________________________________________________________________
+ON LAND DEVELOPMENT WELLS
+1.ARMCUE-1 KGDJ Type: DI/ MODE:D /WD: T.Depth:3,882 Pr.Depth:3,340 Day Mtr:3
+RB Start: 16.01.2026 DR.Start:05.02.2026 PT.Start:24.04.2026 WO.Start:CRep/OutCyl:/
+Days RB.P/A:25/20 DR.P/A:92/57 PT.P/A:20/ TOT.P/A:137/77 WO P/A://
+LA no/A.Kick:/ Mw wt/visc:10.20/050 Lot:3,340/11.33 Litho:
+Obj No/Name: / Obj days: Obj interval:
+Cost in INR(Planned/Actual):/378,925,607.00
+NL-1: LOC-NOT AVBL. Status: LOC#NA (NOT AVAILABLE) Cluster: N
+______________________________
+Phase no Csg Size Depth (P/A) Days(P/A) H.top
+1 20" 250/250 6/9
+2 13 3/8" 2,300/2,276 36/27
+3 9 5/8" 3,300/3,330 26/20
+4 5 1/2" 3,876/3,900 24/22
+OPER:D/DN FROM 3337M TO 3340M.M/A FOR PIT. OBSD PIT 11.3 PPG MWE (SURFACE PR: 640 PSI WITH
+10.2 PPG MUD @ 3330M).P/O (55) STDS 5” DP UPTO 1757M. P/O (12) STDS 5” DP. POOH. B/OFF &
+L/DN 8.5” TCR BIT. MA FOR CBL-VDL LOGGING, R/UP LOGGING TOOLS. FURTHER RECORDING OF MAIN
+PASS IN CBL-VDL LOG IIP.
+__________________________________________________________________________________________
+2.E-1400-13 GKLG Type: DI/ MODE:R /WD: T.Depth:3,140 Pr.Depth: Day Mtr:
+RB Start: 31.03.2026 DR.Start: PT.Start: WO.Start:CRep/OutCyl:/
+Days RB.P/A:7/3 DR.P/A:70/ PT.P/A:20/ TOT.P/A:97/3 WO P/A://
+LA no/A.Kick:/ Mw wt/visc:/000 Lot:/ Litho:
+OIL AND NATURAL GAS CORPORATION LTD. Page No:1
+COMPANY : Assam Asset + RO
+DRILLING PROGRESS REPORT
+(06:00 Hrs of 02.04.2026 to 06:00 Hrs of 03.04.2026)
+___________________________________________________________________________
+Obj No/Name: / Obj days: Obj interval:
+Cost in INR(Planned/Actual):/373,789,219.00
+NL-1: LOC-NOT AVBL. Status: LOC#NA (NOT AVAILABLE) Cluster: N
+______________________________
+Phase no Csg Size Depth (P/A) Days(P/A) H.top
+1 13 3/8" 400/400 8/15
+2 9 5/8" 2,400/2,097 32/60
+3 5 1/2" 3,140/ 30/
+OPER:M/A FOR HSD. M/A FOR RIG DRAGGING TO NEW POINT (#GKLG). C/OUT MATERIAL REMOVAL NEAR BY
+DRAGGING AREA .
+__________________________________________________________________________________________
+3.E-1400-4 GKLF Type: DI/ MODE:D /WD: T.Depth:3,112 Pr.Depth:507 Day Mtr:57
+RB Start: 13.02.2026 DR.Start:18.03.2026 PT.Start:22.08.2026 WO.Start:CRep/OutCyl:/13
+Days RB.P/A:25/20 DR.P/A:70/16 PT.P/A:20/ TOT.P/A:115/36 WO P/A://
+LA no/A.Kick:/ Mw wt/visc:9.10/000 Lot:402/11.33 Litho:
+Obj No/Name: / Obj days: Obj interval:
+Cost in INR(Planned/Actual):/422,372,421.00
+NL-1: RSFB Status: LOCATION RFD (READY FOR DRILLING) Cluster: N
+______________________________
+Phase no Csg Size Depth (P/A) Days(P/A) H.top
+1 13 3/8" 400/324 8/13
+2 9 5/8" 2,400/2,298 32/81
+3 5 1/2" 3,112/3,109 30/52
+OPER:M/A & R/I 02 NOS NMDC WITH MWD TOOL. R/I 02 STDS 6.5" D/C + X/O + 01 SGL HWDP + D/JAR
++ 13 SGLS HWDP + 7 STDS & 01 SGL 5” D/P. M/UP KELLY & TAGGED BTTM @ 450M. CCM, C/OUT TOOL
+TEST, OK. D/DN 12-1/4" HOLE FROM 450M TO 507M. FDIIP
+__________________________________________________________________________________________
+4.E-1400-6 LKHT Type: DI/ MODE:D /WD: T.Depth:2,727 Pr.Depth:356 Day Mtr:
+RB Start: 23.03.2026 DR.Start:28.03.2026 PT.Start:29.05.2026 WO.Start:CRep/OutCyl:/
+Days RB.P/A:7/5 DR.P/A:58/6 PT.P/A:20/ TOT.P/A:85/11 WO P/A://
+LA no/A.Kick:/ Mw wt/visc:8.80/000 Lot:/ Litho:
+Obj No/Name: / Obj days: Obj interval:
+Cost in INR(Planned/Actual):286,973,384.00 /233,971,869.00
+NL-1: LOC-NOT AVBL. Status: LOC#NA (NOT AVAILABLE) Cluster: N
+______________________________
+Phase no Csg Size Depth (P/A) Days(P/A) H.top
+1 13 3/8" 350/349 8/12
+2 9 5/8" 2,300/2,200 32/28
+3 5 1/2" 2,727/2,727 18/22
+OPER:CCM. POOHM/UP 17-1/2” S/STAB @ 30’, RIH UPTO BTTM. CCM. PUMPED & PLACED HIGH VISCOUS +
+LSP PILL IN O PEN HOLE. POOH. L/DN STAB + BIT + B/S. M/A FOR 13-3/8” CSG LOWERING. R/I
+C/SHOE WITH 01 CSG SGL. CHECKED NRV, OK. FURTHER LOWERED 30 NOS OF 13-3/8” CSG (P-110, 68
+PPF BTC). C/SHOE @ 349.52M. CCM PRIOR TO CMTG JOB IIP
+__________________________________________________________________________________________
+5.E-3000-1 LPEZ Type: DI/ MODE:P /WD: T.Depth:3,640 Pr.Depth:3,946 Day Mtr:
+RB Start: 28.10.2025 DR.Start:19.12.2025 PT.Start:29.03.2026 WO.Start:CRep/OutCyl:29/29
+Days RB.P/A:25/23 DR.P/A:105/100 PT.P/A:20/5 TOT.P/A:150/128 WO P/A://
+LA no/A.Kick:/ Mw wt/visc:11.50/058 Lot:3,356/12.37 Litho:
+Obj No/Name:1 /NA Obj days:5 Obj interval:
+Cost in INR(Planned/Actual):613,855,919.00 /565,730,489.00
+NL-1: LPEZ Status: LOCATION RFD (READY FOR DRILLING) Cluster: N
+______________________________
+Phase no Csg Size Depth (P/A) Days(P/A) H.top
+1 20" 401/408 8/11
+2 13 3/8" 2,401/2,449 36/42
+3 9 5/8" 3,451/3,350 29/22
+4 5 1/2" 3,837/3,946 32/25
+OIL AND NATURAL GAS CORPORATION LTD. Page No:2
+COMPANY : Assam Asset + RO
+DRILLING PROGRESS REPORT
+(06:00 Hrs of 02.04.2026 to 06:00 Hrs of 03.04.2026)
+___________________________________________________________________________
+OPER:B/OFF & L/DN 5 STDS INTO 15 SGLS OF 5" D/P. M/A FOR 2-7/8" TBG R/I. N/UP 7-1/16" D/RAM
+BOP. TIGHTENE D THE JOINTS B/W 7-1/16" 10M D/RAM BOP & 7-1/16" X 10M- 11" X 10M TBG SPOOL.
+FUNCTION TESTED BOP, FOUND OK. M/A & R/I 5-1/2” SCRAPPER + 80 NOS 2-7/8” TBG SGL BY SGL
+UPTO 780M. FRIIP
+__________________________________________________________________________________________
+6.EV-2000-3 LKHX Type: DI/ MODE:D /WD: T.Depth:4,000 Pr.Depth:3,450 Day Mtr:
+RB Start: 19.12.2025 DR.Start:19.01.2026 PT.Start:07.05.2026 WO.Start:CRep/OutCyl:/6
+Days RB.P/A:25/25 DR.P/A:103/74 PT.P/A:20/ TOT.P/A:148/99 WO P/A://
+LA no/A.Kick:/ Mw wt/visc:10.50/049 Lot:2,406/11.91 Litho:
+Obj No/Name: / Obj days: Obj interval:
+Cost in INR(Planned/Actual):895,649,505.00 /491,741,277.00
+NL-1: CMAJ Status: CIVIL WORK IN PROGRESS Cluster: N
+______________________________
+Phase no Csg Size Depth (P/A) Days(P/A) H.top
+1 20" 450/452 8/13
+2 13 3/8" 2,400/2,399 37/37
+3 9 5/8" 3,450/3,449 30/31
+4 5 1/2" 4,030/4,026 28/27
+OPER:C/O FINAL CUT OF 9#" CSG. PLACED PRIMARY & SECONDARY SEALS. N/UP 13#" 5M X 11" 10M
+W/H. TIGHTENED AL L STUDS. TESTED W/H @ 3600 PSI, OKN/UP BOP STACK WITH D/SPOOL.. N/UP
+CHOKE SIDE VALVE & KILL SIDE OUTLET VALVE. C/O BOP FUNCTION TEST. OKC/O P/RAM BOP PR TEST @
+300/8000 PSI, A/BOP @ 300/7000 PSI, C/O UT PR TEST OF B/RAM BOP, KILL, CHOKE MANUAL & HCR
+VALVE @ 300/8000 PSI, OK.FPO T/PLUG ASSY IIP
+__________________________________________________________________________________________
+7.EV-2000-4 KGDO Type: DI/ MODE:P /WD: T.Depth:3,864 Pr.Depth:3,865 Day Mtr:
+RB Start: 13.01.2026 DR.Start:30.01.2026 PT.Start:29.03.2026 WO.Start:CRep/OutCyl:/7
+Days RB.P/A:10/10 DR.P/A:98/58 PT.P/A:20/5 TOT.P/A:128/73 WO P/A://
+LA no/A.Kick:/ Mw wt/visc:8.80/050 Lot:3,280/12.82 Litho:SANDSTONE/CLAYSTONE AND
+TRACES OF COAL
+Obj No/Name:1 /NA Obj days:5 Obj interval:
+Cost in INR(Planned/Actual):474,882,816.00 /352,033,357.00
+NL-1: LOC-NOT AVBL. Status: LOC#NA (NOT AVAILABLE) Cluster: N
+______________________________
+Phase no Csg Size Depth (P/A) Days(P/A) H.top
+1 20" 450/454 8/9
+2 13 3/8" 2,500/2,498 38/18
+3 9 5/8" 3,350/3,273 26/12
+4 5 1/2" 3,864/3,864 26/19
+OPER:BAKER HUGHES PARTY REPORTED D/SITE @ 06:30 HRS. PREPARATION OF TCP GUN IIP. M/W P/O
+2-7/8” TBG WITH BB SHOE FROM 1015M TO SURFACE. REPLACED B/OFF TONG DAMAGED JERK LINE WITH
+NEW ONE. REPLACED D/WORKSENCODER BY FMP(E), TESTED OK. B/OFF & L/DN 10 STDS 5” DP INTO
+SGLS. P/UP TCP GUN ASSY. LOWERED GUN + 85 STDS 2-7/8” TBG UPTO 2500M. FRIIP.
+__________________________________________________________________________________________
+8.EV-2000-5 LMFJ_SBS Type: DI/ MODE:D /WD: T.Depth:4,083 Pr.Depth:1,448 Day Mtr:
+RB Start: 23.02.2026 DR.Start:18.03.2026 PT.Start:18.07.2026 WO.Start:CRep/OutCyl:/6
+Days RB.P/A:25/17 DR.P/A:103/16 PT.P/A:20/ TOT.P/A:148/33 WO P/A://
+LA no/A.Kick:/ Mw wt/visc:9.30/000 Lot:416/10.41 Litho:
+Obj No/Name: / Obj days: Obj interval:
+Cost in INR(Planned/Actual):601,537,763.00 /510,849,868.00
+NL-1: LOC-NOT AVBL. Status: LOC#NA (NOT AVAILABLE) Cluster: N
+______________________________
+Phase no Csg Size Depth (P/A) Days(P/A) H.top
+1 20" 400/394 8/9
+2 13 3/8" 2,470/2,470 35/33
+3 9 5/8" 3,350/3,327 28/31
+4 5 1/2" 4,083/4,080 32/42
+OPER:RE-WINDING OF TDS RIGHT BLOWER MOTOR AT BASE. RECEIVED TDS BLOWER MOTOR @ 19:30 HRS.
+OIL AND NATURAL GAS CORPORATION LTD. Page No:3
+COMPANY : Assam Asset + RO
+DRILLING PROGRESS REPORT
+(06:00 Hrs of 02.04.2026 to 06:00 Hrs of 03.04.2026)
+___________________________________________________________________________
+FITTED SAME. TE STED TDS MOTOR BLOWER, CHECKED ALL FUNCTIONS FOUND OK. R/I UPTO 394M, D/JAR
+BRT @ 03:30 HRS. TESTEDMWD TOOL, OK. GEL BREAK AT C/SHOE PRIOR TO FURTHER R/I IIP
+__________________________________________________________________________________________
+9.M-4900 LPEW Type: DI/ MODE:D /WD: T.Depth:3,736 Pr.Depth:1,915 Day Mtr:
+RB Start: 02.02.2026 DR.Start:27.02.2026 PT.Start:23.06.2026 WO.Start:CRep/OutCyl:/8
+Days RB.P/A:25/21 DR.P/A:100/31 PT.P/A:20/ TOT.P/A:145/52 WO P/A://
+LA no/A.Kick:/ Mw wt/visc:9.80/050 Lot:410/11.43 Litho:
+Obj No/Name: / Obj days: Obj interval:
+Cost in INR(Planned/Actual):528,185,272.00 /439,701,525.00
+NL-1: LOC-NOT AVBL. Status: LOC#NA (NOT AVAILABLE) Cluster: N
+______________________________
+Phase no Csg Size Depth (P/A) Days(P/A) H.top
+1 20" 400/402 8/15
+2 13 3/8" 2,380/2,323 35/34
+3 9 5/8" 3,150/3,145 27/23
+4 5 1/2" 3,736/3,735 30/40
+OPER:BPCL A-1700-PT, MP#2 FITTING JOB COMPLETED. TESTED OK.C/OUT BOP FUNCTION & PRESSURE
+TEST. R/I UPTO 1 028M.R/I UPTO 1518M. R/I UPTO BTTM @ 1915M. W/DN LAST 20M. FURTHER C&C IIP
+__________________________________________________________________________________________
+10.M-6100-1 LPEP Type: DI/ MODE:D /WD: T.Depth:3,892 Pr.Depth:3,157 Day Mtr:
+RB Start: 15.11.2025 DR.Start:01.12.2025 PT.Start:17.05.2026 WO.Start:CRep/OutCyl:/5
+Days RB.P/A:9/13 DR.P/A:95/121 PT.P/A:20/ TOT.P/A:124/134 WO P/A://
+LA no/A.Kick:/ Mw wt/visc:11.00/000 Lot:3,157/12.48 Litho:
+Obj No/Name: / Obj days: Obj interval:
+Cost in INR(Planned/Actual):551,369,212.00 /609,132,874.00
+NL-1: LPES Status: LOCATION RFD (READY FOR DRILLING) Cluster: N
+______________________________
+Phase no Csg Size Depth (P/A) Days(P/A) H.top
+1 20" 400/400 8/19
+2 13 3/8" 2,500/2,325 36/43
+3 9 5/8" 3,300/3,147 25/57
+4 5 1/2" 3,892/3,888 26/46
+OPER:CONTD SURFACE CIRC FOR CLEARING DEBRIS. M/UP DD ASSY.M/A & R/I 8-1/2" BIT & BAKER ATK
++ OTK ASSY + 0 1 STD 6-1/2" D/C + 04 SGL 5" HWDP + 01 D/JAR + 13 SGLS 5" HWDP + 01 STD 5"
+D/P. TESTED MWD TOOL, OK. M/A & R/I 39 NOS 5" DP STDS UPTO 1371M. TOOL TESTED OK. R/I 39
+NOS 5" DP STDS UPTO 2524M. TOOL TEST ED OK. FRIIP.
+__________________________________________________________________________________________
+11.NG-1500-6 LPEX Type: DI/ MODE:D /WD: T.Depth:3,995 Pr.Depth:1,750 Day Mtr:34
+RB Start: 29.12.2025 DR.Start:09.03.2026 PT.Start: WO.Start:CRep/OutCyl:/11
+Days RB.P/A:45/59 DR.P/A:107/25 PT.P/A:20/ TOT.P/A:172/84 WO P/A://
+LA no/A.Kick:/ Mw wt/visc:9.70/049 Lot:407/11.39 Litho:
+Obj No/Name: / Obj days: Obj interval:
+Cost in INR(Planned/Actual):582,887,871.00 /754,359,911.00
+NL-1: CHDW Status: LOCATION RFD (READY FOR DRILLING) Cluster: N
+______________________________
+Phase no Csg Size Depth (P/A) Days(P/A) H.top
+1 20" 400/397 8/13
+2 13 3/8" 2,520/2,520 38/41
+3 9 5/8" 3,350/3,267 29/31
+4 5 1/2" 3,995/ 32/32
+OPER:R/I (03) STDS 5” HWDP + (07) STDS 5” DP UPTO C/SHOE. R/I 46 STDS 5" D/P & TAGGED BTTM
+@ 1716M. OBSD H/UP @ 1374-1378M, 1530-1534M, 1550-1552M, 1568M, 1574M, 1592M & 1608-1613M.
+CLEARED BY RECIPROCATION MULTIPLE TIMES. C/O TOOL TEST @ 1445M. CCM. D/DN 17-1/2" HOLE FROM
+1716M TO 1750M. FDIIP
+__________________________________________________________________________________________
+__________________________________________________________________________________________
+MOU PLAN: MONTH MTR:5,235 QTR MTR:21,965 YEAR MTR:106,162
+OIL AND NATURAL GAS CORPORATION LTD. Page No:4
+COMPANY : Assam Asset + RO
+DRILLING PROGRESS REPORT
+(06:00 Hrs of 02.04.2026 to 06:00 Hrs of 03.04.2026)
+___________________________________________________________________________
+ACTUAL DAY MTR:100 MONTH MTR:249 QTR MTR:249 YEAR MTR:249
+OIL AND NATURAL GAS CORPORATION LTD. Page No:5
+COMPANY : Assam Asset + RO
+DRILLING PROGRESS REPORT
+(06:00 Hrs of 02.04.2026 to 06:00 Hrs of 03.04.2026)
+___________________________________________________________________________

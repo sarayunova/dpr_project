@@ -1,0 +1,136 @@
+ON LAND EXPLORATORY WELLS
+1.E-1400-M1 GOAR Type: DI/ MODE:P /WD: T.Depth:2,700 Pr.Depth:2,700 Day Mtr:
+RB Start: 01.02.2026 DR.Start:18.02.2026 PT.Start:31.03.2026 WO.Start:CRep/OutCyl:/
+Days RB.P/A:19/17 DR.P/A:45/41 PT.P/A:15/15 TOT.P/A:79/73 WO P/A://
+LA no/A.Kick:/ Mw wt/visc:13.20/052 Lot:2,055/16.28 Litho:
+Obj No/Name:1 /Obj-1 Obj days:15 Obj interval:2585- 2588
+Cost in INR(Planned/Actual):406,315,534.00 /301,206,597.00
+NL-1: KHDD_AGT Status: CIVIL WORK IN PROGRESS Cluster: N
+______________________________
+Phase no Csg Size Depth (P/A) Days(P/A) H.top
+1 13 3/8" 820/790 9/13
+2 9 5/8" 2,050/2,047 18/17
+3 5 1/2" 2,614/2,617 18/11
+OPER:N/DN PBOP, N/UP XMAS TREE, TESTED @6000PSI, OK. C/O C/OVER FROM 13.2PPG MUD TO TECH.
+WATER. R/UP LOG . UNIT, C/O PCE TEST, OK. R/I 2-1/8" DUMMY GR-CCL TOOL UPTO 2589.66M,
+TAGGED BOTTOM. REC. CORR. LOGB/W 2589.66M.-2400M. P/O UPTO SURFACE. LOWERED 2" TTP GUN UPTO
+100M. FOR PERFORATION IN INTERVAL 258 5M-2587.5M. WUO, STHP/SCHP-0/0 . WAITING FOR DAYLIGHT
+FOR STIM PERF. JOB IIP. 40T CRANE-01
+__________________________________________________________________________________________
+2.NG-2000-1 KUAN Type: DI/ MODE:P /WD: T.Depth:3,950 Pr.Depth:3,950 Day Mtr:
+RB Start: 29.04.2025 DR.Start:22.05.2025 PT.Start:20.03.2026 WO.Start:CRep/OutCyl:/33
+Days RB.P/A:12/7 DR.P/A:132/285 PT.P/A:22/26 TOT.P/A:166/318 WO P/A://
+LA no/A.Kick:/ Mw wt/visc:/000 Lot:/15.06 Litho:
+Obj No/Name:2 /OBJ-2 Obj days:16 Obj interval:3598- 3601
+Cost in INR(Planned/Actual):846,570,902.00 /830,697,514.00
+NL-1: KUDH Status: CIVIL WORK IN PROGRESS Cluster: Y
+______________________________
+Phase no Csg Size Depth (P/A) Days(P/A) H.top
+1 20" 650/549 15/15
+2 13 3/8" 2,400/2,399 40/42
+3 9 5/8" 4,070/3,203 53/184
+4 5 1/2" 4,217/3,946 24/44
+OPER:WKO THRU TUBING TO FLARE TIP VIA 8MM BEAN.@1300HRS. FTHP- 0PSI & SCHP-525 PSI. R/UP
+LN2 UNIT & TESTE D SURFACE LINES. OBSD N2 CUT AT 1577 PSI.R/DN LN2 UNIT. WKO THRU TUBING TO
+FLARE TIP VIA 8MM BEAN. OBSD. FTHP:0PSI, SCHP:200PSI.DISPLACED WELL VOLUME WITH WATER.
+SUBDUE WELL WITH 12.5 PPG MUD. CCM 01 CYCLE. WUO. OBSD MINOR FLUID RETURNS; CONTINUING CCM
+IIP. CRANE:45T-01/110T-01.
+__________________________________________________________________________________________
+ON LAND DEVELOPMENT WELLS
+1.NG-2000-2 ROKDC Type: DI/ MODE:D /WD: T.Depth:3,411 Pr.Depth:1,967 Day Mtr:109
+RB Start: 06.02.2026 DR.Start:14.03.2026 PT.Start: WO.Start:CRep/OutCyl:/4
+Days RB.P/A:30/32 DR.P/A:84/32 PT.P/A:12/ TOT.P/A:126/64 WO P/A://
+LA no/A.Kick:/ Mw wt/visc:9.90/048 Lot:1,480/12.04 Litho:
+Obj No/Name: / Obj days: Obj interval:
+Cost in INR(Planned/Actual):574,671,590.00 /211,418,015.00
+NL-1: SNAA_AGT Status: LAQ IN PROGRESS Cluster: Y
+______________________________
+Phase no Csg Size Depth (P/A) Days(P/A) H.top
+1 20" 300/300 9/4
+2 13 3/8" 1,500/ 21/
+3 9 5/8" 2,800/ 27/
+4 7" 3,411/ 27/
+OPER:F/P/O 7 (T: 12 ) 5” STDS. OBSD CONT. T/PULL,CLRD BY PUMP/OUT & B/REAM. P/OUT@1725-1674
+,1599-1570 & B/REAM@ 1674-1599 M. F/ P/O 02 STDS (T: 14) UPTO 1484 M. ARRESTED LEAKAGE OF
+TDS. RIH SGL BY SGL 36 NO 5” DP UPTO 1800 M. F/R/I 02 STD, W/DN & TAG BTM@ 1858 M. OBSD NO
+H/UP WHILE R/I. CCM. D/DN 12-1 /4” HOLE F/ 1858 M - 1967 M. FDIIP. BIT: M516M-P, M/HR:
+109/9.5, CUM M/HR: 445/33.5, CR:45T-01
+__________________________________________________________________________________________
+OIL AND NATURAL GAS CORPORATION LTD. Page No:1
+COMPANY : Tripura Asset
+DRILLING PROGRESS REPORT
+(06:00 Hrs of 14.04.2026 to 06:00 Hrs of 15.04.2026)
+___________________________________________________________________________
+2.NG-2000-3 KUDO Type: DI/ MODE:P /WD: T.Depth:3,985 Pr.Depth:3,985 Day Mtr:
+RB Start: 06.11.2025 DR.Start:05.12.2025 PT.Start:20.03.2026 WO.Start:CRep/OutCyl:/
+Days RB.P/A:25/29 DR.P/A:107/105 PT.P/A:20/26 TOT.P/A:152/160 WO P/A://
+LA no/A.Kick:/ Mw wt/visc:14.00/045 Lot:3,537/17.89 Litho:
+Obj No/Name:2 /OBJ-2 Obj days:9 Obj interval:3794- 3797
+Cost in INR(Planned/Actual):706,747,557.00 /793,937,382.00
+NL-1: ADEN Status: LAQ COMPLETED Cluster: N
+______________________________
+Phase no Csg Size Depth (P/A) Days(P/A) H.top
+20" 390/377 9/12
+2 13 3/8" 2,000/1,947 29/24
+3 9 5/8" 3,535/3,531 41/36
+4 5 1/2" 3,985/3,980 28/33
+OPER:N/DN X-MASS TREE.N/UP PBOP & TIGHTENED IT'S BOLTS. C/O FUNCTION TEST & PR. TEST OF
+PBOP AS PER STAND ARD GUIDELINES, OK.M/A & L/DN TBG HANGER. R/I 08 SGLS OF 2-7/8" TBG UPTO
+3850M. CCM. PLACED 225M OFHV WATER CUSHION.B/OFF & L/DN 21 SGLS OF 2 7/8" TBG SGL BY SGL.
+P/O 64 STDS OF 2 7/8" TBG UPTO 1805M . FPOIP. TUBING GETTING STUCK IN THE TBG SPINNER
+FREQUENTLY.JOINTS WERE TOO TIGHT.CRANE: 45 T- 02
+__________________________________________________________________________________________
+3.E-1400-14 ROKDE Type: DI/ MODE:R /WD: T.Depth:3,323 Pr.Depth: Day Mtr:
+RB Start: 13.04.2026 DR.Start: PT.Start: WO.Start:CRep/OutCyl:/
+Days RB.P/A:13/2 DR.P/A:68/ PT.P/A:12/ TOT.P/A:93/2 WO P/A://
+LA no/A.Kick:/ Mw wt/visc:/000 Lot:/ Litho:
+Obj No/Name: / Obj days: Obj interval:
+Cost in INR(Planned/Actual):/
+NL-1: ROKAC Status: CIVIL WORK IN PROGRESS Cluster: Y
+______________________________
+Phase no Csg Size Depth (P/A) Days(P/A) H.top
+1 20" 300/ 7/
+2 13 3/8" 1,500/ 15/
+3 9 5/8" 2,750/ 24/
+4 7" 3,323/ 22/
+OPER:CONT. RIG DISMANTLING. L/DN DOGHOUSE AND ITS UNDER STRUCTURE. DISMANTLED IRD
+UNDERSTRUCTURE. M/A AND LOWERED D/WORKS. REEVED BULL LINE FOR MAST LOWERING. PJSM. M/A AND
+LOWERED MAST. OPENED DEAD END. DE-REEVING OF CASING LINE IS IN PROGRESS. CRANE:40T-03.
+__________________________________________________________________________________________
+WORKOVER WELLS
+1.E-1400-M2 ADAT Type: VE/ MODE:W /WD: T.Depth: Pr.Depth: Day Mtr:
+RB Start: 01.02.2026 DR.Start: PT.Start: WO.Start:CRep/OutCyl:/4
+Days RB.P/A:20/ DR.P/A:/122 PT.P/A:/6 TOT.P/A:20/157 WO
+P/A:45/40/
+LA no/A.Kick:/ Mw wt/visc:/000 Lot:/ Litho:
+Obj No/Name: / Obj days: Obj interval:
+Cost in INR(Planned/Actual):/35,019,748.00
+NL-1: PT (PT ACT) Status: LOC#NA (NOT AVAILABLE) Cluster: N
+______________________________
+Phase no Csg Size Depth (P/A) Days(P/A) H.top
+1 20" 800/671 11/16
+2 13 3/8" 2,720/2,720 26/29
+3 9 5/8" 3,590/3,588 32/26
+4 5 1/2" 4,552/4,550 35/50
+OPER:N/UP XMAS TREE.& TESTED FLANGE @ 9000PSI.F/OK .M/UP SURFACE CMT LINE & TEST@5000 PSI
+F/OK.CHANGEOVER ED WELL VOLUME 1.5SG MUD WITH WATER BY CMT UNIT & RIG PUMP.R/UP PCE.RIH
+DUMMY TOOL UPTO 3828M.OBSDBB SHOE AT 3806.6M.POOH DUMMY TOOL.TESTED PCE @ 8000 PSI F/OK.
+WAITING ON DAYLIGHT FOR TTP JOB.M/WHI LE LAID SURFACE PRO/LINES,CLEANED CELLAR PIT AND RIG
+EQUIPMENT.CRANE 40 T :02 NOS.#
+__________________________________________________________________________________________
+__________________________________________________________________________________________
+MOU PLAN: MONTH MTR:2,400 QTR MTR:16,403 YEAR MTR:49,744
+OIL AND NATURAL GAS CORPORATION LTD. Page No:2
+COMPANY : Tripura Asset
+DRILLING PROGRESS REPORT
+(06:00 Hrs of 14.04.2026 to 06:00 Hrs of 15.04.2026)
+___________________________________________________________________________
+ACTUAL DAY MTR:109 MONTH MTR:702 QTR MTR:702 YEAR MTR:702
+-----------WELLS COMPLETED ----------------
+ONLAND DEV :
+ 1.ROKDB(12.04.26),
+OIL AND NATURAL GAS CORPORATION LTD. Page No:3
+COMPANY : Tripura Asset
+DRILLING PROGRESS REPORT
+(06:00 Hrs of 14.04.2026 to 06:00 Hrs of 15.04.2026)
+___________________________________________________________________________
