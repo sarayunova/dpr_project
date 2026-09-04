@@ -31,9 +31,16 @@ def extract_text_from_pdf(source: str | Path | IO[bytes]) -> str:
     `source` is a path (local files, e.g. tests) or a binary file-like
     object (e.g. `UploadFile.file` from Phase 5's `POST /api/ingest`) --
     pdfplumber accepts either.
+
+    `x_tolerance=2` (pdfplumber's default is 3) -- found in Phase 9
+    against the real sample_dpr_assam_ro_day2.pdf: the default merged
+    adjacent words in the banner line with no space between them
+    ("COMPANY :AssamAsset+ RO"), which corrupted the extracted
+    asset_name, not just cosmetics. Verified against all four real/
+    synthesized sample PDFs with no regressions.
     """
     with pdfplumber.open(source) as pdf:
-        return "\n".join(page.extract_text() or "" for page in pdf.pages)
+        return "\n".join(page.extract_text(x_tolerance=2) or "" for page in pdf.pages)
 
 
 def ingest_dpr_pdf(path: str | Path, db: Session) -> dict[str, Any]:

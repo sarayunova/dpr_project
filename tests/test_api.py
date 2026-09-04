@@ -39,7 +39,23 @@ pytestmark = pytest.mark.skipif(
 
 Session = sessionmaker(bind=_engine) if _DB_AVAILABLE else None
 
-TEST_WELL_NAMES = ["NG-2000-4", "NG-2000-6", "ARMCUE-1", "E-1400-13"]
+TEST_WELL_NAMES = [
+    "NG-2000-4",
+    "NG-2000-6",
+    "ARMCUE-1",
+    "E-1400-13",
+    # test_well_detail_timeline_includes_both_days_once_both_ingested
+    # (Phase 9) also ingests the full 13-well sample_dpr_assam_ro_day2.pdf.
+    "E-1400-4",
+    "E-1400-6",
+    "E-3000-1",
+    "EV-2000-3",
+    "EV-2000-4",
+    "EV-2000-5",
+    "M-4900",
+    "M-6100-1",
+    "NG-1500-6",
+]
 
 
 @pytest.fixture(autouse=True)
@@ -173,6 +189,30 @@ def test_get_well_detail_timeline_and_phases(client):
 def test_get_well_detail_404_for_unknown_well(client):
     response = client.get("/api/wells/999999999")
     assert response.status_code == 404
+
+
+def test_well_detail_timeline_includes_both_days_once_both_ingested(client):
+    # Phase 9: closes the last unchecked item under
+    # docs/10_acceptance_criteria.md's "Multi-day timeline" section --
+    # the DB-level accumulation was already proven in
+    # tests/test_ingest.py; this proves the API surfaces both days too.
+    _upload_sample(client)  # day 1 (02.04.2026), 4 wells
+    with open(SAMPLES_DIR / "sample_dpr_assam_ro_day2.pdf", "rb") as day2_file:
+        response = client.post(
+            "/api/ingest",
+            files=[("files", ("sample_dpr_assam_ro_day2.pdf", day2_file, "application/pdf"))],
+        )
+    assert response.json()["errors"] == []
+
+    wells = client.get("/api/wells").json()
+    well_id = next(w for w in wells if w["well_name"] == "NG-2000-4")["id"]
+
+    timeline = client.get(f"/api/wells/{well_id}").json()["timeline"]
+    assert [day["report_date"] for day in timeline] == ["2026-04-02", "2026-04-03"]
+    assert timeline[0]["present_depth"] == 3612.0
+    assert timeline[1]["present_depth"] == 3616.0
+    assert timeline[0]["tot_days_actual"] == 155
+    assert timeline[1]["tot_days_actual"] == 156
 
 
 def test_get_well_variance_matches_spec_worked_example(client):

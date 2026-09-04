@@ -58,6 +58,17 @@ TEST_WELL_NAMES = [
     "M-4900",
     "M-6100-1",
     "NG-1500-6",
+    # sample_dpr_assam_arakan.txt (Phase 9)
+    "E-760-10",
+    "E-1400-24",
+    "E-760-9U",
+    # sample_dpr_tripura.txt (Phase 9)
+    "E-1400-M1",
+    "NG-2000-1",
+    "NG-2000-2",
+    "NG-2000-3",
+    "E-1400-14",
+    "E-1400-M2",
 ]
 
 
@@ -266,3 +277,83 @@ def test_reingestion_replaces_repair_events_not_appends(db):
     events = db.query(RepairEvent).filter_by(daily_entry_id=entry.id).all()
     assert len(events) == 1  # not 2 — replaced, not appended
     assert events[0].equipment_or_system == "DW drum encoder"
+
+
+# ---------------------------------------------------------------------------
+# Phase 9 — multi-asset/multi-format hardening: full PDF/text -> DB ingestion
+# of the two other real DPR formats. Phase 1 already proved these parse
+# correctly (tests/test_parser.py); these tests prove the full pipeline
+# (well upsert, DailyEntry, PhaseSnapshot) also holds up on real data this
+# system wasn't originally built against, not just the parser layer.
+# ---------------------------------------------------------------------------
+
+
+def test_ingest_assam_arakan_different_asset_and_zero_phase_well(db):
+    text = (SAMPLES_DIR / "sample_dpr_assam_arakan.txt").read_text(encoding="utf-8")
+    result = ingest_dpr_text(text, db, source_filename="sample_dpr_assam_arakan.txt")
+    db.commit()
+
+    assert result["wells_ingested"] == 3
+    assert result["asset_name"] == "Assam & Assam Arakan Basin, Jorhat"
+
+    wells = db.query(Well).filter(Well.well_name.in_(TEST_WELL_NAMES)).all()
+    ingested_names = {w.well_name for w in wells if w.asset_name == "Assam & Assam Arakan Basin, Jorhat"}
+    assert ingested_names == {"E-760-10", "E-1400-24", "E-760-9U"}
+
+    # E-760-10: rig in transit, MODE:O, zero phase rows, every numeric
+    # field blank -- the parser-level guarantee from Phase 1 must survive
+    # the full DB round-trip too.
+    rig_in_transit = _well(db, "E-760-10")
+    entry = db.query(DailyEntry).filter_by(well_id=rig_in_transit.id).one()
+    assert entry.mode == "O"
+    assert entry.tot_days_planned is None
+    assert entry.cost_planned_inr is None
+    phases = db.query(PhaseSnapshot).filter_by(daily_entry_id=entry.id).all()
+    assert phases == []
+
+
+def test_ingest_tripura_workover_category_and_missing_phase_number(db):
+    text = (SAMPLES_DIR / "sample_dpr_tripura.txt").read_text(encoding="utf-8")
+    result = ingest_dpr_text(text, db, source_filename="sample_dpr_tripura.txt")
+    db.commit()
+
+    assert result["wells_ingested"] == 6
+    assert result["asset_name"] == "Tripura Asset"
+
+    workover_well = _well(db, "E-1400-M2")
+    assert workover_well.category == "WORKOVER WELLS"
+    assert workover_well.well_type == "VE"
+
+    # NG-2000-3's first phase row has no leading phase-number token in the
+    # source text -- confirms the DB still ends up with all 4 rows,
+    # correctly numbered, not just the parser's in-memory objects.
+    ng_2000_3 = _well(db, "NG-2000-3")
+    entry = db.query(DailyEntry).filter_by(well_id=ng_2000_3.id).one()
+    phases = (
+        db.query(PhaseSnapshot)
+        .filter_by(daily_entry_id=entry.id)
+        .order_by(PhaseSnapshot.phase_no)
+        .all()
+    )
+    assert [p.phase_no for p in phases] == [1, 2, 3, 4]
+    assert phases[0].casing_size == '20"'
+
+
+def test_ingest_real_pdf_extraction_does_not_merge_words_in_banner(db):
+    # Regression test for a real bug found during Phase 9: pdfplumber's
+    # default x_tolerance merged adjacent words with no visible gap in
+    # sample_dpr_assam_ro_day2.pdf's banner ("COMPANY :AssamAsset+ RO"),
+    # corrupting asset_name -- not just cosmetic, it broke the banner
+    # regex entirely (see app/ingest.py's extract_text_from_pdf). This
+    # uses the real PDF, not the hand-transcribed .txt, specifically to
+    # catch pdfplumber-layer issues the .txt-based tests can't see.
+    result = ingest_dpr_pdf(SAMPLES_DIR / "sample_dpr_assam_ro_day2.pdf", db)
+    db.commit()
+
+    assert result["asset_name"] == "Assam Asset + RO"
+    assert result["wells_ingested"] == 13
+
+    ng_2000_4 = _well(db, "NG-2000-4")
+    assert ng_2000_4.asset_name == "Assam Asset + RO"
+    entry = db.query(DailyEntry).filter_by(well_id=ng_2000_4.id).one()
+    assert entry.tot_days_actual == 156

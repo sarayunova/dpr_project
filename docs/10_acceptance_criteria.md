@@ -143,17 +143,28 @@ rather than an overwrite of one row.
       and day 2 (`886323863.0` / `960346238.0` both days) — cost figures
       can legitimately stay flat for a day even while depth/days move;
       don't treat an unchanged value as a parsing error.
-- [ ] The well-detail timeline (`GET /api/wells/{id}`, per
+- [x] The well-detail timeline (`GET /api/wells/{id}`, per
       `08_api_specification.md`) returns both days' entries in the
-      timeline array once both files are ingested. (Phase 5.)
+      timeline array once both files are ingested —
+      `tests/test_api.py::test_well_detail_timeline_includes_both_days_once_both_ingested`
+      (Phase 9), using the real PDFs end to end through the API, not
+      just the hand-transcribed text.
 
-The three checked items above are verified by `tests/test_parser.py` at
-the parser-output level (no database exists yet in Phase 1); the two
-unchecked items need Phase 3 (ingestion pipeline) and Phase 5 (API).
+All five items above are now verified at every layer: parser output
+(Phase 1, `tests/test_parser.py`), the DB (Phase 3,
+`tests/test_ingest.py`), and the API (Phase 9, `tests/test_api.py`).
 
 ## Multi-asset parsing (against `sample_dpr_assam_arakan.txt` and `sample_dpr_tripura.txt`)
 
-Verified by `tests/test_parser.py` (Phase 1).
+Verified at the parser level by `tests/test_parser.py` (Phase 1), and at
+the full DB-ingestion level by `tests/test_ingest.py`
+(`test_ingest_assam_arakan_different_asset_and_zero_phase_well`,
+`test_ingest_tripura_workover_category_and_missing_phase_number`, Phase
+9) — Phase 1 only proved these formats *parse*; Phase 9 proves the full
+pipeline (well upsert, `DailyEntry`, `PhaseSnapshot`) holds up on them
+too, and this is also where a real pdfplumber word-merging bug was
+caught (see `02_data_dictionary.md` §A.4) — Phase 1's tests used
+hand-transcribed text and couldn't have found it.
 
 - [x] `sample_dpr_assam_arakan.txt` ingests 3 wells (`E-760-10`,
       `E-1400-24`, `E-760-9U`) under asset name `Assam & Assam Arakan
@@ -176,6 +187,12 @@ Verified by `tests/test_parser.py` (Phase 1).
       first row's phase-number token being absent from the source text —
       the parser must infer phase 1 by row position, not by a leading
       number.
+- [x] Ingesting the **real** `sample_dpr_assam_ro_day2.pdf` (not the
+      hand-transcribed `.txt`) end to end produces `asset_name` `Assam
+      Asset + RO`, uncorrupted, and all 13 wells —
+      `tests/test_ingest.py::test_ingest_real_pdf_extraction_does_not_merge_words_in_banner`.
+      Regression test for the pdfplumber word-merging bug found in
+      Phase 9; see `02_data_dictionary.md` §A.4.
 
 ## Not yet defined (fill in once available)
 

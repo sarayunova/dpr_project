@@ -105,28 +105,31 @@ scripts/        one-off tools (real-model eval runner)
 
 ## Status
 
-Phases 0-7 complete: scaffolding, the deterministic DPR parser
+Phases 0-7 and 9 complete: scaffolding, the deterministic DPR parser
 (`app/parser.py`), the data model/database (`app/models.py`,
 `app/database.py`, Alembic migrations), the ingestion pipeline
 (`app/ingest.py`), local LLM repair/troubleshooting extraction
 (`app/llm_client.py`), the full REST API (`app/main.py`, 7 endpoints —
 the original 6 in `docs/08_api_specification.md` plus
-`GET /api/repairs/reviewed` added in Phase 7), and the full dashboard
+`GET /api/repairs/reviewed` added in Phase 7), the full dashboard
 (`static/index.html` — wells overview, well detail, and the
 repair/troubleshooting review queue with a confirmed-vs-false-positive
-distinction, no external dependencies) — 57/57 tests passing against a
-real Postgres instance, plus two manual browser walkthroughs of the
-live dashboard (upload → wells table → well detail →
-variance/timeline/repair events; and the review queue's confirm/dismiss
-flow end to end), all matching the API exactly. Real-model eval against
-the production-recommended `qwen2.5:7b-instruct`: 100% recall / 83%
+distinction, no external dependencies), and multi-asset/multi-format
+hardening (Phase 9) — 61/61 tests passing against a real Postgres
+instance, plus manual browser walkthroughs of the live dashboard. A
+real bug was caught during Phase 9 by testing the *actual* sample PDFs
+end to end (not just hand-transcribed text): pdfplumber's default word
+tolerance merged adjacent words in one PDF's banner, corrupting
+`asset_name` — fixed and regression-tested, see
+`docs/02_data_dictionary.md` §A.4. Real-model eval against the
+production-recommended `qwen2.5:7b-instruct`: 100% recall / 83%
 precision / 94% accuracy on the 18-row labeled set — see
 `docs/06_llm_prompts_and_eval.md` for the full comparison against a
 smaller model and a performance caveat at full well-count scale.
 
 Remaining v1 scope: **Phase 8 (proposal/AFE ingestion) is blocked** on
 a real sample document (see `02_data_dictionary.md` §B) — nothing to
-build there yet. Phase 9 (multi-asset/multi-format hardening) and
-Phase 10 (non-functional hardening, now that `07_non_functional_requirements.md`
-is filled in) are open. See `docs/11_implementation_phases.md` for the
-full phase-by-phase build plan.
+build there yet. Phase 10 (non-functional hardening, now that
+`07_non_functional_requirements.md` is filled in) is open. See
+`docs/11_implementation_phases.md` for the full phase-by-phase build
+plan.

@@ -107,6 +107,20 @@ existing `parser.py` for the tested implementation.
   PROGRESS REPORT` / date-range line), never by assuming a fixed position
   such as "first N lines of the file" or "immediately after a page
   break."
+- **pdfplumber's default word-spacing tolerance can merge adjacent words
+  in the banner with no inserted space.** Found in Phase 9 against the
+  real `sample_dpr_assam_ro_day2.pdf` (not the hand-transcribed `.txt` —
+  this is a PDF-extraction-layer issue, invisible to any test using
+  already-extracted text): `page.extract_text()`'s default
+  `x_tolerance=3` produced `COMPANY :AssamAsset+ RO` instead of
+  `COMPANY : Assam Asset + RO`, which both broke the banner regex *and*
+  would have corrupted `asset_name` even if it hadn't. Fixed by calling
+  `extract_text(x_tolerance=2)` in `app/ingest.py`'s
+  `extract_text_from_pdf` — verified against all four sample PDFs with
+  no regressions. Only the banner line was affected in the samples
+  checked (well-data lines extracted correctly at the default
+  tolerance), but this is worth re-checking if a future asset's PDF
+  shows the same symptom elsewhere.
 
 ### A.5 What this document does NOT contain
 
