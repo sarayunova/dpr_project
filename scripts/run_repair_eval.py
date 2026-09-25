@@ -22,7 +22,11 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from app.llm_client import OLLAMA_MODEL, extract_repair_events  # noqa: E402
+from app.llm_client import (  # noqa: E402
+    OLLAMA_MODEL,
+    RepairExtractionError,
+    extract_repair_events,
+)
 
 EVAL_FILE = Path(__file__).resolve().parent.parent / "eval" / "repair_extraction_eval.json"
 
@@ -30,12 +34,19 @@ EVAL_FILE = Path(__file__).resolve().parent.parent / "eval" / "repair_extraction
 def main() -> None:
     rows = json.loads(EVAL_FILE.read_text(encoding="utf-8"))
 
-    tp = fp = tn = fn = 0
+    tp = fp = tn = fn = errors = 0
     results = []
 
     for row in rows:
         start = time.monotonic()
-        events = extract_repair_events(row["narrative_text"])
+        try:
+            events = extract_repair_events(row["narrative_text"])
+        except RepairExtractionError as exc:
+            # A failed call is not a "no-flag" answer -- counting it as one
+            # would silently inflate TN/FN. Excluded from the metrics.
+            errors += 1
+            print(f"[{row['id']:>2}] ERR  {exc}")
+            continue
         elapsed = time.monotonic() - start
         actual_flag = len(events) > 0
         expected_flag = row["expected_should_flag"]
@@ -72,9 +83,13 @@ def main() -> None:
 
     print()
     print(f"Model: {OLLAMA_MODEL}")
+    if errors:
+        print(f"WARNING: {errors} row(s) failed to get an LLM answer and are "
+              "excluded below -- is Ollama running with this model pulled?")
     print(f"Rows: {n}  TP={tp} FP={fp} TN={tn} FN={fn}")
     print(f"Precision: {precision:.2f}  Recall: {recall:.2f}  Accuracy: {accuracy:.2f}")
-    print(f"Total time: {total_time:.1f}s  Avg per narrative: {total_time / n:.1f}s")
+    if n:
+        print(f"Total time: {total_time:.1f}s  Avg per narrative: {total_time / n:.1f}s")
 
 
 if __name__ == "__main__":

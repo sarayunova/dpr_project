@@ -70,6 +70,7 @@ existing row rather than duplicating.
 | cost_planned_inr, cost_actual_inr | float | Cumulative |
 | status_text | string | |
 | oper_narrative | text | Free-text daily activity description |
+| repair_check_status | string, nullable, indexed | Whether the LLM repair check actually ran: ok / failed / queued; null = before this was tracked. `failed` means zero RepairEvents is **unverified**, not "none found" |
 | ingested_at | datetime | |
 
 Relationships: one DailyEntry → many PhaseSnapshot; one DailyEntry →
@@ -119,6 +120,21 @@ deleted or overwritten by the app.
 | size_bytes | int | |
 | uploaded_at | datetime | |
 
+### IngestJob (added 2026-09-25)
+One queued DPR PDF for the background ingestion worker (`app/jobs.py`,
+`/api/ingest-jobs`). Operational state, not part of the well data itself.
+
+| Field | Type | Notes |
+|---|---|---|
+| id | PK | Also the processing order (oldest first) |
+| source_document_id | FK → SourceDocument | The stored PDF to ingest |
+| filename | string | As uploaded |
+| status | string, indexed | queued / running / done / failed |
+| wells_total, wells_done | int | Per-file progress; total null until parsed |
+| result | JSON | Same shape as a `POST /api/ingest` item, once done |
+| error | text | Set when failed |
+| created_at, started_at, finished_at | datetime | UTC |
+
 ### User (Phase 10)
 Email + password login, single role, no RBAC.
 
@@ -148,6 +164,7 @@ DailyEntry 1───N PhaseSnapshot
 DailyEntry 1───N RepairEvent
 SourceDocument 1───N DailyEntry   (one PDF covers many wells)
 User 1───N UserSession
+SourceDocument 1───N IngestJob
 ```
 
 ## Design decisions worth preserving

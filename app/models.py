@@ -22,6 +22,7 @@ from sqlalchemy import (
     Float,
     ForeignKey,
     Integer,
+    JSON,
     String,
     Text,
     UniqueConstraint,
@@ -108,6 +109,12 @@ class DailyEntry(Base):
     cost_actual_inr: Mapped[float | None] = mapped_column(Float)
     status_text: Mapped[str | None] = mapped_column(Text)
     oper_narrative: Mapped[str | None] = mapped_column(Text)
+    # Whether the LLM repair/troubleshooting check actually ran on
+    # oper_narrative: "ok" (ran -- zero events then genuinely means none
+    # found), "failed" (local LLM unreachable/errored -- zero events means
+    # NOT checked), "queued" (re-run requested, see app/jobs.py). Null for
+    # rows ingested before this was tracked (unknown).
+    repair_check_status: Mapped[str | None] = mapped_column(String, index=True)
     ingested_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
 
     well: Mapped["Well"] = relationship(back_populates="daily_entries")
@@ -131,6 +138,33 @@ class SourceDocument(Base):
     stored_path: Mapped[str] = mapped_column(String, nullable=False)
     size_bytes: Mapped[int] = mapped_column(Integer, nullable=False)
     uploaded_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+
+
+class IngestJob(Base):
+    """One queued DPR PDF, processed in the background by app/jobs.py so
+    large batch uploads don't run inside a single HTTP request (~12s of
+    CPU LLM time per well). Added after Phase 10; see
+    docs/08_api_specification.md §Ingest jobs."""
+
+    __tablename__ = "ingest_jobs"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    source_document_id: Mapped[int] = mapped_column(
+        ForeignKey("source_documents.id"), nullable=False
+    )
+    filename: Mapped[str | None] = mapped_column(String)
+    # queued -> running -> done | failed
+    status: Mapped[str] = mapped_column(String, nullable=False, default="queued", index=True)
+    wells_total: Mapped[int | None] = mapped_column(Integer)
+    wells_done: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    # Same shape as one POST /api/ingest "ingested" item, once done.
+    result: Mapped[dict | None] = mapped_column(JSON)
+    error: Mapped[str | None] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+    started_at: Mapped[datetime | None] = mapped_column(DateTime)
+    finished_at: Mapped[datetime | None] = mapped_column(DateTime)
+
+    source_document: Mapped["SourceDocument"] = relationship()
 
 
 class User(Base):

@@ -189,9 +189,22 @@ login on every API route, original PDFs preserved as the system of
 record (`GET /api/documents/{id}`), scheduled `pg_dump` + PDF-mirror
 backups, and restart/migrate-on-start in Docker — see
 `docs/10_acceptance_criteria.md` §"Non-functional hardening (Phase 10)".
-Still open there: a real-reboot check on the deployment machine, and two
-performance decisions (a background queue for large batch uploads, and
-the LLM model size at 30 wells/asset).
+Still open there: a real-reboot check on the deployment machine, and the
+LLM model-size decision at 30 wells/asset.
+
+Uploads from the dashboard go through a background ingestion queue
+(`app/jobs.py`, `/api/ingest-jobs`): files are stored and queued
+immediately, and a worker thread in the app works through them one at a
+time with per-well progress shown on the dashboard, so a large backlog
+upload never runs inside one HTTP request. Queued jobs survive restarts.
+Set `INGEST_WORKER=false` to run an app process that serves the API
+without consuming the queue.
+
+If Ollama is down or errors during ingestion, the well data still goes
+in, but each affected report is marked as **not checked** for
+repair/troubleshooting events (never silently treated as "none found").
+The dashboard shows a warning banner with a **Re-run checks** button to
+use once Ollama is back.
 
 Remaining v1 scope: **Phase 8 (proposal/AFE ingestion) is blocked** on
 a real sample document (see `02_data_dictionary.md` §B) — nothing to

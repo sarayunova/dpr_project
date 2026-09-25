@@ -184,6 +184,16 @@ TIGHT", flagged with `equipment_or_system: "TBG spinner"`,
 ambiguous narrative, not a wiring bug — exactly the kind of call human
 review should settle, not this eval.
 
+**Failure handling (2026-09-25)**: a failed LLM call (Ollama unreachable,
+timeout, HTTP error, unusable response) used to return `[]` — identical
+to "no repair language found", so an outage silently made reports look
+repair-free, and made `scripts/run_repair_eval.py` score a down model as
+all no-flag answers. `extract_repair_events` now raises
+`RepairExtractionError` instead; ingestion records it per report
+(`DailyEntry.repair_check_status = "failed"`), the dashboard warns, and
+failed checks can be re-run (`POST /api/repairs/recheck`). The eval
+script counts such rows as `ERR` and excludes them from the metrics.
+
 **Performance note**: ~12.3s/narrative on CPU (vs. ~4.2s for the small
 model) is a real cost of the larger model, not just a quality trade.
 `07_non_functional_requirements.md`'s 5-minute per-file ingest budget

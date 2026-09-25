@@ -86,6 +86,15 @@
   #login-form input { width: 100%; font: inherit; padding: 0.45rem 0.6rem; border: 1px solid var(--border); border-radius: 4px; margin-top: 0.25rem; }
   #login-form button { margin-top: 1rem; width: 100%; }
   #login-error { margin-top: 0.75rem; }
+  #jobs-summary { margin-top: 0.75rem; font-size: 0.85rem; }
+  #jobs-list { margin-top: 0.4rem; max-height: 320px; overflow-y: auto; }
+  .job { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: baseline; font-size: 0.85rem; padding: 0.35rem 0; border-top: 1px solid var(--border); }
+  .job .name { font-weight: 600; overflow-wrap: anywhere; }
+  .job .detail { color: var(--muted); }
+  .job .detail.err { color: var(--bad); }
+  #llm-warning { background: var(--bad-bg); color: var(--bad); border: 1px solid #f3c7c0; border-radius: 6px; padding: 0.75rem 1rem; margin-bottom: 1.25rem; font-size: 0.9rem; display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; justify-content: space-between; }
+  #llm-warning button { border-color: var(--bad); color: var(--bad); background: #fff; }
+  .job .detail.warn { color: #8a5a00; }
   .pdf-link { color: var(--link); text-decoration: none; font-size: 0.85rem; }
 </style>
 </head>
@@ -115,12 +124,19 @@
   </section>
 </div>
 
+<div id="llm-warning" hidden>
+  <span id="llm-warning-text"></span>
+  <button id="recheck-btn">Re-run checks</button>
+</div>
+
 <div id="view-wells">
   <section id="upload">
     <h2>Upload DPR PDFs</h2>
     <input type="file" id="file-input" multiple accept="application/pdf">
     <button class="primary" id="ingest-btn">Ingest</button>
     <div id="upload-results"></div>
+    <div id="jobs-summary" class="muted" hidden></div>
+    <div id="jobs-list"></div>
   </section>
 
   <section id="wells">
@@ -199,6 +215,8 @@ window.addEventListener('unhandledrejection', (e) => {
 });
 
 function showLogin() {
+  clearTimeout(jobsTimer); // stop polling the queue while logged out
+  document.getElementById('llm-warning').hidden = true;
   document.querySelector('nav').hidden = true;
   for (const id of ['view-wells', 'view-detail', 'view-review']) {
     document.getElementById(id).hidden = true;
@@ -317,18 +335,13 @@ document.getElementById('ingest-btn').addEventListener('click', async () => {
   const formData = new FormData();
   for (const file of input.files) formData.append('files', file);
 
-  resultsEl.innerHTML = '<div class="muted">Ingesting…</div>';
+  resultsEl.innerHTML = '<div class="muted">Uploading…</div>';
   try {
-    const res = await api('/api/ingest', { method: 'POST', body: formData });
+    // Queued, not ingested inline: each well takes seconds through the
+    // local LLM, so progress is shown in the jobs list below instead.
+    const res = await api('/api/ingest-jobs', { method: 'POST', body: formData });
     const body = await res.json();
     resultsEl.innerHTML = '';
-    for (const item of body.ingested) {
-      const div = document.createElement('div');
-      div.className = 'file-result ok';
-      div.textContent = item.filename + ': ' + item.wells_ingested + ' well(s) ingested, ' +
-        item.repair_events_created + ' repair event(s) flagged (' + item.asset_name + ', ' + item.report_date + ')';
-      resultsEl.appendChild(div);
-    }
     for (const item of body.errors) {
       const div = document.createElement('div');
       div.className = 'file-result err';
@@ -336,12 +349,109 @@ document.getElementById('ingest-btn').addEventListener('click', async () => {
       resultsEl.appendChild(div);
     }
   } catch (e) {
+    if (e instanceof NotAuthenticated) return;
     resultsEl.innerHTML = '<div class="file-result err">Upload failed: ' + e + '</div>';
   }
   input.value = '';
-  loadWells();
-  loadReviewQueue();
+  loadJobs();
 });
+
+// ---------------------------------------------------------------------------
+// Ingest jobs: polled while anything is queued/running
+// ---------------------------------------------------------------------------
+
+let jobsTimer = null;
+let lastDoneCount = null;
+let lastPendingChecks = null;
+
+async function loadJobs() {
+  clearTimeout(jobsTimer);
+  const [body, checks] = await Promise.all([
+    api('/api/ingest-jobs?limit=50').then((r) => r.json()),
+    api('/api/repairs/check-status').then((r) => r.json()),
+  ]);
+  renderJobs(body);
+  renderLlmWarning(checks);
+
+  const c = body.counts;
+  // A newly finished job means new wells/events -- refresh those views.
+  const finished = c.done + c.failed;
+  if (lastDoneCount !== null && finished !== lastDoneCount) {
+    loadWells();
+    loadReviewQueue();
+  }
+  // Re-checks finishing also add repair events.
+  const pendingChecks = checks.queued;
+  if (lastPendingChecks !== null && pendingChecks !== lastPendingChecks) {
+    loadReviewQueue();
+  }
+  lastDoneCount = finished;
+  lastPendingChecks = pendingChecks;
+
+  if (c.queued + c.running + checks.queued > 0) jobsTimer = setTimeout(loadJobs, 3000);
+}
+
+function renderLlmWarning(checks) {
+  const el = document.getElementById('llm-warning');
+  const textEl = document.getElementById('llm-warning-text');
+  const btn = document.getElementById('recheck-btn');
+  el.hidden = checks.failed + checks.queued === 0;
+  if (checks.failed > 0) {
+    textEl.textContent = '⚠ The repair/troubleshooting check did not run for ' + checks.failed +
+      ' daily report(s) because the local LLM (Ollama) could not be reached. Those reports show no ' +
+      'repair events, but they have not been checked.' +
+      (checks.queued ? ' ' + checks.queued + ' re-check(s) in progress.' : '');
+    btn.hidden = false;
+  } else {
+    textEl.textContent = 'Re-running the repair/troubleshooting check for ' + checks.queued + ' daily report(s)…';
+    btn.hidden = true;
+  }
+}
+
+document.getElementById('recheck-btn').addEventListener('click', async () => {
+  await api('/api/repairs/recheck', { method: 'POST' });
+  loadJobs();
+});
+
+function renderJobs(body) {
+  const c = body.counts;
+  const summaryEl = document.getElementById('jobs-summary');
+  const listEl = document.getElementById('jobs-list');
+  summaryEl.hidden = body.jobs.length === 0;
+  summaryEl.textContent = 'Ingest queue: ' + c.queued + ' queued · ' + c.running + ' running · ' +
+    c.done + ' done · ' + c.failed + ' failed';
+
+  listEl.innerHTML = '';
+  for (const job of body.jobs) {
+    const div = document.createElement('div');
+    div.className = 'job';
+    let pill, detail = '', detailClass = 'detail';
+    if (job.status === 'queued') {
+      pill = '<span class="pill pill-neutral">queued</span>';
+    } else if (job.status === 'running') {
+      pill = '<span class="pill pill-pending">running</span>';
+      detail = job.wells_total != null ? job.wells_done + ' / ' + job.wells_total + ' wells' : 'reading PDF…';
+    } else if (job.status === 'done') {
+      const r = job.result;
+      detail = r.wells_ingested + ' well(s), ' + r.repair_events_created + ' repair event(s) flagged (' +
+        (r.asset_name || '—') + ', ' + r.report_date + ')';
+      if (r.repair_checks_failed) {
+        pill = '<span class="pill pill-pending">done*</span>';
+        detail += ' — repair check did NOT run for ' + r.repair_checks_failed + ' well(s): local LLM unreachable';
+        detailClass = 'detail warn';
+      } else {
+        pill = '<span class="pill pill-good">done</span>';
+      }
+    } else {
+      pill = '<span class="pill pill-bad">failed</span>';
+      detail = job.error || 'unknown error';
+      detailClass = 'detail err';
+    }
+    div.innerHTML = pill + '<span class="name">' + escapeHtml(job.filename || '(unnamed)') + '</span>' +
+      '<span class="' + detailClass + '">' + escapeHtml(detail) + '</span>';
+    listEl.appendChild(div);
+  }
+}
 
 async function openWell(id) {
   location.hash = 'well/' + id;
@@ -396,6 +506,7 @@ function renderDetail(detail, variance) {
         '<span>days: ' + variancePill(day.tot_days_actual, day.tot_days_planned, variancePct(day.tot_days_actual, day.tot_days_planned)) + '</span>' +
         '<span>cost: ' + variancePill(day.cost_actual_inr, day.cost_planned_inr, variancePct(day.cost_actual_inr, day.cost_planned_inr)) + '</span>' +
         '<span>' + (day.status_text || '') + '</span>' +
+        repairCheckPill(day.repair_check_status) +
         (day.source_document_id
           ? '<a class="pdf-link" target="_blank" href="/api/documents/' + day.source_document_id + '">Original PDF</a>'
           : '') +
@@ -411,6 +522,17 @@ function renderDetail(detail, variance) {
       ).join('');
     timelineEl.appendChild(div);
   }
+}
+
+function repairCheckPill(status) {
+  // "ok"/null: nothing to flag. "failed": 0 events here means NOT checked.
+  if (status === 'failed') {
+    return '<span class="pill pill-bad" title="The local LLM could not be reached when this report was ingested, so its narrative has not been checked. Use Re-run checks.">repair check not run</span>';
+  }
+  if (status === 'queued') {
+    return '<span class="pill pill-pending">repair check queued</span>';
+  }
+  return '';
 }
 
 function metricHtml(label, pct) {
@@ -536,6 +658,7 @@ async function start() {
   document.querySelector('nav').hidden = false;
   loadWells();
   loadReviewQueue(); // populates the nav badge count even before visiting the tab
+  loadJobs(); // resumes showing progress of a backlog still being worked through
   route();
 }
 

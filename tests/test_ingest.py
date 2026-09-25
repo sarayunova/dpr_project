@@ -20,6 +20,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from app.ingest import ingest_dpr_pdf, ingest_dpr_text
+from app.llm_client import RepairExtractionError
 from app.models import DailyEntry, PhaseSnapshot, RepairEvent, Well
 
 DATABASE_URL = os.environ.get(
@@ -242,9 +243,8 @@ def test_llm_flagged_events_become_repair_event_rows_unreviewed(db):
 
 
 def test_llm_failure_does_not_block_ingestion(db):
-    # extract_repair_events itself never raises (see test_llm_client.py),
-    # but ingest.py's own try/except around it is a second line of
-    # defense — confirm ingestion still completes if it somehow did.
+    # An unexpected exception type (not RepairExtractionError) is caught
+    # too, as a second line of defense.
     with patch("app.ingest.extract_repair_events", side_effect=RuntimeError("boom")):
         result = ingest_dpr_pdf(SAMPLES_DIR / "sample_dpr.pdf", db)
     db.commit()
@@ -255,6 +255,65 @@ def test_llm_failure_does_not_block_ingestion(db):
     ng_2000_4 = _well(db, "NG-2000-4")
     entry = db.query(DailyEntry).filter_by(well_id=ng_2000_4.id).one()
     assert entry.tot_days_actual == 155
+    assert entry.repair_check_status == "failed"
+    assert result["repair_checks_failed"] == 4
+
+
+def test_successful_check_recorded_as_ok_even_with_zero_events(db):
+    # autouse mock returns [] -- the model ran and found nothing.
+    result = ingest_dpr_pdf(SAMPLES_DIR / "sample_dpr.pdf", db)
+    db.commit()
+
+    assert result["repair_checks_failed"] == 0
+    statuses = {
+        e.repair_check_status
+        for e in db.query(DailyEntry).join(Well).filter(Well.well_name.in_(TEST_WELL_NAMES))
+    }
+    assert statuses == {"ok"}
+
+
+def test_llm_unreachable_marks_checks_failed_not_repair_free(db):
+    """The bug this guards against: Ollama down used to look exactly like
+    "no repairs found" -- 0 events, no trace of the failure."""
+    with patch(
+        "app.ingest.extract_repair_events",
+        side_effect=RepairExtractionError("local LLM call failed: connection refused"),
+    ):
+        result = ingest_dpr_pdf(SAMPLES_DIR / "sample_dpr.pdf", db)
+    db.commit()
+
+    assert result["wells_ingested"] == 4
+    assert result["repair_events_created"] == 0
+    assert result["repair_checks_failed"] == 4
+    entry = db.query(DailyEntry).filter_by(well_id=_well(db, "NG-2000-4").id).one()
+    assert entry.repair_check_status == "failed"
+
+
+def test_partial_llm_failure_counted_per_well(db):
+    calls = iter([[], RepairExtractionError("timeout"), [], []])
+
+    def flaky(narrative):
+        outcome = next(calls)
+        if isinstance(outcome, Exception):
+            raise outcome
+        return outcome
+
+    with patch("app.ingest.extract_repair_events", side_effect=flaky):
+        result = ingest_dpr_pdf(SAMPLES_DIR / "sample_dpr.pdf", db)
+    db.commit()
+    assert result["repair_checks_failed"] == 1
+
+
+def test_reingestion_resets_failed_check_when_llm_is_back(db):
+    with patch("app.ingest.extract_repair_events", side_effect=RepairExtractionError("down")):
+        ingest_dpr_pdf(SAMPLES_DIR / "sample_dpr.pdf", db)
+    db.commit()
+    ingest_dpr_pdf(SAMPLES_DIR / "sample_dpr.pdf", db)  # autouse mock: [] (LLM ok)
+    db.commit()
+
+    entry = db.query(DailyEntry).filter_by(well_id=_well(db, "NG-2000-4").id).one()
+    db.refresh(entry)
+    assert entry.repair_check_status == "ok"
 
 
 def test_reingestion_replaces_repair_events_not_appends(db):

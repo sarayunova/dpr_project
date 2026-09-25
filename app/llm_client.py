@@ -43,6 +43,13 @@ Return ONLY a JSON array (no other text, no markdown fences). Each item:
 If there is no repair/troubleshooting language, return an empty array: []"""
 
 
+class RepairExtractionError(Exception):
+    """The check did not run (Ollama unreachable, timeout, HTTP error,
+    unusable response). Distinct from "ran and found nothing" (`[]`):
+    callers record it so a report is never silently treated as
+    repair-free just because the model was down."""
+
+
 class RepairEventDict(TypedDict):
     equipment_or_system: str
     snippet: str
@@ -52,9 +59,10 @@ class RepairEventDict(TypedDict):
 def extract_repair_events(narrative: str) -> list[RepairEventDict]:
     """Call the local LLM once for one day's OPER narrative.
 
-    Never raises: on any failure (Ollama unreachable, timeout, bad JSON)
-    this logs a warning and returns [] so ingesting the rest of a file's
-    wells isn't blocked by one narrative's LLM call failing.
+    Returns [] only when the model actually ran and found nothing. Any
+    failure (Ollama unreachable, timeout, HTTP error, bad JSON, unusable
+    shape) raises RepairExtractionError -- app/ingest.py catches it per
+    well, so one failed call still never blocks the rest of a file.
     """
     narrative = (narrative or "").strip()
     if not narrative:
@@ -76,13 +84,8 @@ def extract_repair_events(narrative: str) -> list[RepairEventDict]:
         response.raise_for_status()
         raw = response.json()["response"]
         events = json.loads(raw)
-    except Exception:
-        logger.warning(
-            "LLM repair-event extraction failed for narrative %r",
-            narrative[:80],
-            exc_info=True,
-        )
-        return []
+    except Exception as exc:
+        raise RepairExtractionError(f"local LLM call failed: {exc}") from exc
 
     if isinstance(events, dict):
         # Smaller/weaker models sometimes return a bare object instead of
@@ -92,8 +95,7 @@ def extract_repair_events(narrative: str) -> list[RepairEventDict]:
         events = [events] if events else []
 
     if not isinstance(events, list):
-        logger.warning("LLM returned unparseable JSON shape: %r", events)
-        return []
+        raise RepairExtractionError(f"LLM returned unusable JSON shape: {events!r:.200}")
 
     return [cleaned for event in events if (cleaned := _clean_event(event)) is not None]
 

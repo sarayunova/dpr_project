@@ -108,7 +108,7 @@ def test_every_api_route_requires_login(client, route):
         pytest.skip("public by design")
     path = route.path.replace("{well_id}", "1").replace("{repair_id}", "1").replace(
         "{document_id}", "1"
-    )
+    ).replace("{job_id}", "1")
     method = sorted(route.methods)[0]
     assert client.request(method, path).status_code == 401
 

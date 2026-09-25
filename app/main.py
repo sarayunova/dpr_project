@@ -8,12 +8,14 @@ the dashboard's contract drift silently.
 from __future__ import annotations
 
 import io
+from contextlib import asynccontextmanager
 from typing import Any, Literal
 
-from fastapi import Cookie, Depends, FastAPI, File, HTTPException, Response, UploadFile
+from fastapi import Cookie, Depends, FastAPI, File, HTTPException, Query, Response, UploadFile
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.auth import (
@@ -27,10 +29,40 @@ from app.auth import (
 )
 from app.database import get_db
 from app.ingest import extract_text_from_pdf, ingest_dpr_text
-from app.models import DailyEntry, PhaseSnapshot, RepairEvent, SourceDocument, User, Well
+from app.jobs import (
+    enqueue_pdf,
+    notify_worker,
+    queue_failed_repair_checks,
+    start_worker,
+    stop_worker,
+    worker_enabled,
+)
+from app.models import (
+    DailyEntry,
+    IngestJob,
+    PhaseSnapshot,
+    RepairEvent,
+    SourceDocument,
+    User,
+    Well,
+)
 from app.storage import save_source_document, source_document_path
 
-app = FastAPI(title="Drilling DPR Monitor")
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Background ingestion worker (app/jobs.py). Not started under
+    # TestClient unless used as a context manager -- tests drive the queue
+    # with app.jobs.run_pending_jobs() instead.
+    if worker_enabled():
+        start_worker()
+    yield
+    if worker_enabled():
+        stop_worker()
+
+
+app = FastAPI(title="Drilling DPR Monitor", lifespan=lifespan)
 
 # Every /api route except the auth ones below requires a logged-in user
 # (docs/07_non_functional_requirements.md). /health and the static
@@ -106,6 +138,49 @@ async def ingest(
             errors.append({"filename": file.filename, "error": str(exc)})
 
     return {"ingested": ingested, "errors": errors}
+
+
+@app.post("/api/ingest-jobs", dependencies=LOGIN_REQUIRED)
+async def queue_ingest(
+    files: list[UploadFile] = File(...), db: Session = Depends(get_db)
+) -> dict[str, Any]:
+    """Store and queue each PDF, returning immediately -- the dashboard's
+    upload path. Processing happens in app/jobs.py's worker."""
+    queued = []
+    errors = []
+
+    for file in files:
+        try:
+            job = enqueue_pdf(db, file.filename, await file.read())
+            db.commit()
+            queued.append({"job_id": job.id, "filename": file.filename})
+        except Exception as exc:
+            db.rollback()
+            errors.append({"filename": file.filename, "error": str(exc)})
+
+    notify_worker()
+    return {"queued": queued, "errors": errors}
+
+
+@app.get("/api/ingest-jobs", dependencies=LOGIN_REQUIRED)
+def list_ingest_jobs(
+    limit: int = Query(default=100, ge=1, le=1000), db: Session = Depends(get_db)
+) -> dict[str, Any]:
+    counts = dict.fromkeys(("queued", "running", "done", "failed"), 0)
+    for status, count in (
+        db.query(IngestJob.status, func.count()).group_by(IngestJob.status).all()
+    ):
+        counts[status] = count
+    jobs = db.query(IngestJob).order_by(IngestJob.id.desc()).limit(limit).all()
+    return {"counts": counts, "jobs": [_job_dict(job) for job in jobs]}
+
+
+@app.get("/api/ingest-jobs/{job_id}", dependencies=LOGIN_REQUIRED)
+def get_ingest_job(job_id: int, db: Session = Depends(get_db)) -> dict[str, Any]:
+    job = db.get(IngestJob, job_id)
+    if job is None:
+        raise HTTPException(status_code=404, detail="ingest job not found")
+    return _job_dict(job)
 
 
 @app.get("/api/wells", dependencies=LOGIN_REQUIRED)
@@ -213,6 +288,29 @@ def list_reviewed_repairs(db: Session = Depends(get_db)) -> list[dict[str, Any]]
     ]
 
 
+@app.get("/api/repairs/check-status", dependencies=LOGIN_REQUIRED)
+def repair_check_status(db: Session = Depends(get_db)) -> dict[str, int]:
+    """How many daily reports have NOT been checked for repair events
+    because the local LLM failed ("failed"), or are waiting for a re-run
+    ("queued") -- the dashboard's warning banner."""
+    counts = dict(
+        db.query(DailyEntry.repair_check_status, func.count())
+        .filter(DailyEntry.repair_check_status.in_(["failed", "queued"]))
+        .group_by(DailyEntry.repair_check_status)
+        .all()
+    )
+    return {"failed": counts.get("failed", 0), "queued": counts.get("queued", 0)}
+
+
+@app.post("/api/repairs/recheck", dependencies=LOGIN_REQUIRED)
+def recheck_failed_repairs(db: Session = Depends(get_db)) -> dict[str, int]:
+    """Queue every failed check for a re-run by the background worker."""
+    queued = queue_failed_repair_checks(db)
+    db.commit()
+    notify_worker()
+    return {"queued": queued}
+
+
 @app.post("/api/repairs/{repair_id}/review", dependencies=LOGIN_REQUIRED)
 def review_repair(
     repair_id: int, body: ReviewRequest = ReviewRequest(), db: Session = Depends(get_db)
@@ -245,6 +343,21 @@ def download_source_document(document_id: int, db: Session = Depends(get_db)) ->
 # ---------------------------------------------------------------------------
 # Serialization helpers
 # ---------------------------------------------------------------------------
+
+
+def _job_dict(job: IngestJob) -> dict[str, Any]:
+    return {
+        "job_id": job.id,
+        "filename": job.filename,
+        "status": job.status,
+        "wells_done": job.wells_done,
+        "wells_total": job.wells_total,
+        "result": job.result,
+        "error": job.error,
+        "created_at": job.created_at,
+        "started_at": job.started_at,
+        "finished_at": job.finished_at,
+    }
 
 
 def _latest_entry(db: Session, well_id: int) -> DailyEntry | None:
@@ -287,6 +400,7 @@ def _timeline_entry(entry: DailyEntry) -> dict[str, Any]:
         "cost_actual_inr": entry.cost_actual_inr,
         "status_text": entry.status_text,
         "oper_narrative": entry.oper_narrative,
+        "repair_check_status": entry.repair_check_status,
         "phases": [_phase_dict(phase) for phase in entry.phases],
         "repair_events": [_repair_event_dict(event) for event in entry.repair_events],
     }

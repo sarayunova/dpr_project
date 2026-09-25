@@ -7,7 +7,9 @@ locally" — that suite is scripts/run_repair_eval.py, not this file).
 import json
 from unittest.mock import MagicMock, patch
 
-from app.llm_client import extract_repair_events
+import pytest
+
+from app.llm_client import RepairExtractionError, extract_repair_events
 
 
 def _mock_response(body: object, status_code: int = 200) -> MagicMock:
@@ -92,26 +94,36 @@ def test_bare_single_event_object_is_recovered_as_one_event_list():
     ]
 
 
-def test_connection_failure_returns_empty_list_not_an_exception():
+# Failures must be distinguishable from "ran and found nothing" -- a
+# report must never look repair-free just because Ollama was down.
+
+
+def test_connection_failure_raises_not_empty_list():
     with patch("app.llm_client.httpx.post", side_effect=ConnectionError("no ollama")):
-        result = extract_repair_events("some narrative")
-    assert result == []
+        with pytest.raises(RepairExtractionError, match="no ollama"):
+            extract_repair_events("some narrative")
 
 
-def test_invalid_json_in_response_returns_empty_list():
+def test_invalid_json_in_response_raises():
     response = MagicMock()
     response.status_code = 200
     response.json.return_value = {"response": "not valid json {"}
     response.raise_for_status = MagicMock()
     with patch("app.llm_client.httpx.post", return_value=response):
-        result = extract_repair_events("some narrative")
-    assert result == []
+        with pytest.raises(RepairExtractionError):
+            extract_repair_events("some narrative")
 
 
-def test_http_error_status_returns_empty_list():
+def test_http_error_status_raises():
     with patch("app.llm_client.httpx.post", return_value=_mock_response([], status_code=500)):
-        result = extract_repair_events("some narrative")
-    assert result == []
+        with pytest.raises(RepairExtractionError, match="HTTP 500"):
+            extract_repair_events("some narrative")
+
+
+def test_unusable_json_shape_raises():
+    with patch("app.llm_client.httpx.post", return_value=_mock_response("just a string")):
+        with pytest.raises(RepairExtractionError, match="unusable JSON shape"):
+            extract_repair_events("some narrative")
 
 
 def test_request_uses_temperature_zero_and_json_format():

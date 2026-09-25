@@ -241,6 +241,57 @@ against the full `docker compose up --build` stack)
       off on the dev machine**; and Docker Desktop only starts on user
       sign-in, not at boot. Re-check on the actual deployment machine.
 
+## Background ingestion queue (added 2026-09-25)
+
+Automated in `tests/test_jobs.py`; LLM mocked.
+- [x] `POST /api/ingest-jobs` returns with the files stored and queued,
+      before any wells are ingested.
+- [x] The worker produces the same result as synchronous ingestion
+      (identical `result` shape and values; `DailyEntry` linked to its
+      `SourceDocument`).
+- [x] Per-well progress (`wells_done` / `wells_total`) is visible from a
+      separate session while the job is still running.
+- [x] A non-PDF is rejected at upload and not stored; a PDF-headed but
+      unreadable file fails only its own job, and later jobs still run.
+- [x] Jobs run oldest first; `GET /api/ingest-jobs` counts are correct.
+- [x] A job left `running` by a restart is re-queued on startup and then
+      completes.
+- [x] The real worker thread (started by the app's startup hook) picks up
+      an upload and finishes it without any manual trigger.
+- [x] Queue routes require login (covered by the route-enumerating auth
+      test).
+- [x] Manual (browser, 2026-09-25): uploading all four sample PDFs plus a
+      non-PDF returned immediately; the non-PDF showed "not a PDF file";
+      the queue list showed queued → running with "2 / 4 wells" progress →
+      done with each file's result; the wells table refreshed by itself
+      when jobs finished (26 wells across 3 assets).
+
+## LLM-unreachable warning and re-check (added 2026-09-25)
+
+Automated in `tests/test_llm_client.py`, `tests/test_ingest.py`,
+`tests/test_jobs.py`; LLM mocked.
+- [x] A failed LLM call (connection error, HTTP error, invalid JSON,
+      unusable shape) raises `RepairExtractionError` — never `[]`.
+- [x] Ingestion with the LLM down still stores every well's data, marks
+      each entry `repair_check_status = "failed"`, and reports
+      `repair_checks_failed` in the ingest/job result.
+- [x] A check that ran and found nothing is `"ok"` — distinguishable from
+      one that failed. A partial failure is counted per well.
+- [x] Re-ingesting once the LLM is back resets the status to `"ok"`.
+- [x] `GET /api/repairs/check-status` counts failed/queued reports;
+      `GET /api/wells/{id}` exposes `repair_check_status` per day.
+- [x] `POST /api/repairs/recheck` queues failed checks; the worker re-runs
+      them, creating `reviewed = false` events and setting `"ok"`.
+- [x] A re-check while the LLM is still down tries each report exactly
+      once and returns it to `"failed"` — no retry loop.
+- [x] Manual (browser, 2026-09-25, stand-in model server): with the model
+      down, uploading `sample_dpr.pdf` showed the warning banner ("did
+      not run for 4 daily report(s)"), the job as `done*` with the
+      warning, and "repair check not run" on NG-2000-4's day (a narrative
+      containing "RECTIFIED OIL LEAKAGE FROM DW"). After starting the
+      model and clicking Re-run checks, the banner cleared, all 4 reports
+      became `ok`, and the flagged events appeared in the review queue.
+
 ## Not yet defined (fill in once available)
 
 - [ ] Proposal ingestion correctness — blocked on a real sample.

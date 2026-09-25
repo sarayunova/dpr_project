@@ -189,10 +189,9 @@ preservation, scheduled backups, restart/migration-on-start. Checks in
 Still open: the real-reboot check on the deployment machine, the
 backup-mechanism confirmation, and the performance items below, which
 need a decision rather than code:
-- Batch backlog uploads run synchronously in one HTTP request (~12s per
-  well narrative through the LLM on CPU), so a large backlog upload can
-  run for a very long time in a single request. A background job queue
-  would fix this but is an architecture change — confirm before building.
+- ~~Batch backlog uploads run synchronously in one HTTP request~~ —
+  **done (2026-09-25, user-approved):** Postgres-backed background
+  ingestion queue, `/api/ingest-jobs`, see `08_api_specification.md`.
 - At 30 wells/asset the per-file LLM time approaches ~6 minutes, over the
   5-minute budget (see `06_llm_prompts_and_eval.md`) — needs a hardware
   benchmark / model-size decision.
