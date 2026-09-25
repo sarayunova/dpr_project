@@ -6,6 +6,47 @@ implementation but should confirm any contract changes explicitly
 rather than silently drifting from this spec, since the dashboard
 depends on it.
 
+## Authentication (added in Phase 10)
+
+Email + password, single role (`07_non_functional_requirements.md`).
+**Every `/api/*` endpoint below requires a logged-in session and returns
+`401 {"detail": "not authenticated"}` without one** — except
+`POST /api/auth/login` and `POST /api/auth/logout`. `/health` and the
+static dashboard shell stay public (neither exposes well data).
+
+The session is an `HttpOnly`, `SameSite=Strict` cookie named
+`dpr_session`, valid for `SESSION_HOURS` (default 12). There is no
+sign-up or password-reset endpoint (no outbound SMTP); accounts are
+managed from the command line with `python -m app.users` (see the
+project README).
+
+### POST /api/auth/login
+
+**Request body**
+```json
+{ "email": "someone@ongc.co.in", "password": "..." }
+```
+Email is matched case-insensitively.
+
+**Response** — `200` with the session cookie set:
+```json
+{ "email": "someone@ongc.co.in" }
+```
+`401 {"detail": "invalid email or password"}` for a wrong password, an
+unknown email, or a deactivated account — deliberately indistinguishable.
+
+### POST /api/auth/logout
+
+Deletes the session server-side (the old cookie can't be replayed) and
+clears the cookie. Always returns `{ "ok": true }`.
+
+### GET /api/auth/me
+
+**Response**
+```json
+{ "email": "someone@ongc.co.in" }
+```
+
 ## POST /api/ingest
 
 Upload one or more DPR PDFs in a single request (multipart form,
@@ -32,6 +73,12 @@ at once.
 
 Re-uploading a file covering a (well, report_date) pair already in the
 database **replaces** that entry rather than duplicating it.
+
+**Phase 10:** every file that parses is also stored byte-for-byte as the
+system of record (`07_non_functional_requirements.md`), content-addressed
+by SHA-256 — re-uploading identical bytes reuses the stored copy. Files
+that fail PDF text extraction are not stored. See
+`GET /api/documents/{document_id}`.
 
 ## GET /api/wells
 
@@ -67,6 +114,7 @@ Full well detail plus its complete daily timeline.
   "timeline": [
     {
       "report_date": "2026-04-02",
+      "source_document_id": 3,
       "mode": "D",
       "present_depth": 3612.0,
       "day_meterage": null,
@@ -89,6 +137,10 @@ Full well detail plus its complete daily timeline.
   ]
 }
 ```
+
+`source_document_id` (added in Phase 10) is the stored original PDF this
+day's entry came from — `null` for entries ingested before Phase 10 or
+from text rather than a PDF upload.
 
 ## GET /api/wells/{well_id}/variance
 
@@ -168,10 +220,15 @@ to `"confirmed"`, preserving the original v1 behavior)
 { "ok": true }
 ```
 
+## GET /api/documents/{document_id}
+
+**Added in Phase 10.** Returns the original uploaded PDF
+(`application/pdf`, `Content-Disposition: inline` with the original
+filename). `404` if the id is unknown or the file is missing from
+storage.
+
 ## Endpoints planned but not yet implemented
 
 - `POST /api/ingest-proposal` — one-time proposal/AFE ingestion per
   well. Blocked on having a real sample document to build extraction
   against (see `02_data_dictionary.md` §B).
-- Anything related to authentication/authorization — see
-  `07_non_functional_requirements.md` for whether this is needed in v1.

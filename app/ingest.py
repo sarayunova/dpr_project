@@ -19,7 +19,7 @@ import pdfplumber
 from sqlalchemy.orm import Session
 
 from app.llm_client import extract_repair_events
-from app.models import DailyEntry, PhaseSnapshot, RepairEvent, Well
+from app.models import DailyEntry, PhaseSnapshot, RepairEvent, SourceDocument, Well
 from app.parser import ParsedReport, ParsedWell, parse_dpr_text
 
 logger = logging.getLogger(__name__)
@@ -48,13 +48,19 @@ def ingest_dpr_pdf(path: str | Path, db: Session) -> dict[str, Any]:
     return ingest_dpr_text(text, db, source_filename=Path(path).name)
 
 
-def ingest_dpr_text(text: str, db: Session, source_filename: str | None = None) -> dict[str, Any]:
+def ingest_dpr_text(
+    text: str,
+    db: Session,
+    source_filename: str | None = None,
+    source_document: SourceDocument | None = None,
+) -> dict[str, Any]:
     report = parse_dpr_text(text)
 
     repair_events_created = 0
     for parsed_well in report.wells:
         well = _upsert_well(db, report, parsed_well)
         entry = _upsert_daily_entry(db, well, report, parsed_well, source_filename)
+        entry.source_document_id = source_document.id if source_document else None
         repair_events_created += _create_repair_events(db, entry, parsed_well)
 
     db.flush()

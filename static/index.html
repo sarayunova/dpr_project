@@ -79,6 +79,14 @@
   button.dismiss { background: var(--bad-bg); color: var(--bad); border-color: var(--bad-bg); }
   button.dismiss:hover { background: #f6d6d1; }
   #review-count { background: #eee; border-radius: 999px; padding: 0 0.5rem; font-size: 0.8rem; }
+  #user-box { font-size: 0.85rem; color: var(--muted); margin-left: 1.25rem; }
+  #user-box a { color: var(--link); cursor: pointer; margin-left: 0.5rem; }
+  #view-login section { max-width: 360px; margin: 3rem auto; }
+  #login-form label { display: block; font-size: 0.85rem; color: var(--muted); margin-top: 0.75rem; }
+  #login-form input { width: 100%; font: inherit; padding: 0.45rem 0.6rem; border: 1px solid var(--border); border-radius: 4px; margin-top: 0.25rem; }
+  #login-form button { margin-top: 1rem; width: 100%; }
+  #login-error { margin-top: 0.75rem; }
+  .pdf-link { color: var(--link); text-decoration: none; font-size: 0.85rem; }
 </style>
 </head>
 <body>
@@ -88,10 +96,24 @@
   <nav>
     <a id="nav-wells" class="active">Wells</a>
     <a id="nav-review">Review queue <span id="review-count" hidden>0</span></a>
+    <span id="user-box" hidden><span id="user-email"></span><a id="logout-link">Log out</a></span>
   </nav>
 </header>
 
 <main>
+
+<div id="view-login" hidden>
+  <section>
+    <h2>Sign in</h2>
+    <form id="login-form">
+      <label>Email <input type="email" id="login-email" autocomplete="username" required></label>
+      <label>Password <input type="password" id="login-password" autocomplete="current-password" required></label>
+      <button class="primary" type="submit">Sign in</button>
+      <div id="login-error" class="file-result err" hidden></div>
+    </form>
+    <p class="muted" style="font-size:0.8rem">No account? Ask whoever runs this server to create one.</p>
+  </section>
+</div>
 
 <div id="view-wells">
   <section id="upload">
@@ -155,6 +177,63 @@
 <script>
 'use strict';
 
+// ---------------------------------------------------------------------------
+// Auth: every /api call goes through api(); a 401 means the session is
+// missing or expired, so drop back to the login screen.
+// ---------------------------------------------------------------------------
+
+class NotAuthenticated extends Error {}
+
+async function api(url, opts) {
+  const res = await fetch(url, opts);
+  if (res.status === 401) {
+    showLogin();
+    throw new NotAuthenticated();
+  }
+  return res;
+}
+
+// Unhandled rejections from a 401 mid-navigation are expected, not bugs.
+window.addEventListener('unhandledrejection', (e) => {
+  if (e.reason instanceof NotAuthenticated) e.preventDefault();
+});
+
+function showLogin() {
+  document.querySelector('nav').hidden = true;
+  for (const id of ['view-wells', 'view-detail', 'view-review']) {
+    document.getElementById(id).hidden = true;
+  }
+  document.getElementById('view-login').hidden = false;
+  document.getElementById('login-email').focus();
+}
+
+document.getElementById('login-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const errorEl = document.getElementById('login-error');
+  errorEl.hidden = true;
+  const res = await fetch('/api/auth/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      email: document.getElementById('login-email').value,
+      password: document.getElementById('login-password').value,
+    }),
+  });
+  document.getElementById('login-password').value = '';
+  if (!res.ok) {
+    errorEl.textContent = 'Invalid email or password.';
+    errorEl.hidden = false;
+    return;
+  }
+  document.getElementById('view-login').hidden = true;
+  start();
+});
+
+document.getElementById('logout-link').addEventListener('click', async () => {
+  await fetch('/api/auth/logout', { method: 'POST' });
+  showLogin();
+});
+
 let wellsCache = [];
 let sortKey = 'well_name';
 let sortDir = 1;
@@ -183,7 +262,7 @@ function variancePct(actual, planned) {
 }
 
 async function loadWells() {
-  const res = await fetch('/api/wells');
+  const res = await api('/api/wells');
   wellsCache = await res.json();
   renderWellsTable();
 }
@@ -240,7 +319,7 @@ document.getElementById('ingest-btn').addEventListener('click', async () => {
 
   resultsEl.innerHTML = '<div class="muted">Ingesting…</div>';
   try {
-    const res = await fetch('/api/ingest', { method: 'POST', body: formData });
+    const res = await api('/api/ingest', { method: 'POST', body: formData });
     const body = await res.json();
     resultsEl.innerHTML = '';
     for (const item of body.ingested) {
@@ -267,8 +346,8 @@ document.getElementById('ingest-btn').addEventListener('click', async () => {
 async function openWell(id) {
   location.hash = 'well/' + id;
   const [detailRes, varianceRes] = await Promise.all([
-    fetch('/api/wells/' + id),
-    fetch('/api/wells/' + id + '/variance'),
+    api('/api/wells/' + id),
+    api('/api/wells/' + id + '/variance'),
   ]);
   const detail = await detailRes.json();
   const variance = varianceRes.ok ? await varianceRes.json() : null;
@@ -317,6 +396,9 @@ function renderDetail(detail, variance) {
         '<span>days: ' + variancePill(day.tot_days_actual, day.tot_days_planned, variancePct(day.tot_days_actual, day.tot_days_planned)) + '</span>' +
         '<span>cost: ' + variancePill(day.cost_actual_inr, day.cost_planned_inr, variancePct(day.cost_actual_inr, day.cost_planned_inr)) + '</span>' +
         '<span>' + (day.status_text || '') + '</span>' +
+        (day.source_document_id
+          ? '<a class="pdf-link" target="_blank" href="/api/documents/' + day.source_document_id + '">Original PDF</a>'
+          : '') +
       '</div>' +
       (day.oper_narrative ? '<div class="narrative">' + escapeHtml(day.oper_narrative) + '</div>' : '') +
       day.repair_events.map((ev) =>
@@ -364,7 +446,7 @@ function reviewStatusText(ev) {
 // ---------------------------------------------------------------------------
 
 async function loadReviewQueue() {
-  const res = await fetch('/api/repairs/unreviewed');
+  const res = await api('/api/repairs/unreviewed');
   const events = await res.json();
   renderReviewQueue(events);
   return events;
@@ -408,7 +490,7 @@ function renderReviewQueue(events) {
 }
 
 async function reviewEvent(repairId, outcome) {
-  await fetch('/api/repairs/' + repairId + '/review', {
+  await api('/api/repairs/' + repairId + '/review', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ outcome: outcome }),
@@ -446,9 +528,18 @@ async function route() {
 }
 
 window.addEventListener('hashchange', route);
-loadWells();
-loadReviewQueue(); // populates the nav badge count even before visiting the tab
-route();
+
+async function start() {
+  const me = await api('/api/auth/me').then((r) => r.json());
+  document.getElementById('user-email').textContent = me.email;
+  document.getElementById('user-box').hidden = false;
+  document.querySelector('nav').hidden = false;
+  loadWells();
+  loadReviewQueue(); // populates the nav badge count even before visiting the tab
+  route();
+}
+
+start();
 </script>
 
 </body>

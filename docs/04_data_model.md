@@ -59,6 +59,7 @@ existing row rather than duplicating.
 | well_id | FK → Well | |
 | report_date | date | End of the report's 24h window |
 | source_filename | string | For traceability |
+| source_document_id | FK → SourceDocument, nullable | The stored original PDF (Phase 10); null for text-only ingestion |
 | mode | string | D/R/P/O/etc. |
 | present_depth | float | |
 | day_meterage | float | |
@@ -103,6 +104,41 @@ duration-based** — the source report has no hours field (see
 | confidence | string | low / medium / high, LLM self-assessed |
 | reviewed | boolean | Human has confirmed/dismissed |
 
+### SourceDocument (Phase 10)
+One row per distinct uploaded PDF — the original file is the system of
+record (`07_non_functional_requirements.md`) and lives on disk at
+`UPLOAD_DIR/<sha256[:2]>/<sha256>.pdf`; this row indexes it. Never
+deleted or overwritten by the app.
+
+| Field | Type | Notes |
+|---|---|---|
+| id | PK | |
+| original_filename | string | Name at first upload |
+| sha256 | string(64), unique | Content hash — identical re-uploads reuse the row |
+| stored_path | string | Relative to `UPLOAD_DIR`, so the directory can move |
+| size_bytes | int | |
+| uploaded_at | datetime | |
+
+### User (Phase 10)
+Email + password login, single role, no RBAC.
+
+| Field | Type | Notes |
+|---|---|---|
+| id | PK | |
+| email | string, unique | Stored lowercased |
+| password_hash | string | scrypt, salted, parameters stored in the hash |
+| is_active | boolean | Deactivate instead of delete |
+| created_at | datetime | |
+
+### UserSession (Phase 10)
+
+| Field | Type | Notes |
+|---|---|---|
+| id | PK | |
+| token_hash | string(64), unique | SHA-256 of the cookie token — the raw token is never stored |
+| user_id | FK → User | |
+| created_at, expires_at | datetime | |
+
 ## Entity-relationship summary
 
 ```
@@ -110,6 +146,8 @@ Well 1───1 Proposal
 Well 1───N DailyEntry
 DailyEntry 1───N PhaseSnapshot
 DailyEntry 1───N RepairEvent
+SourceDocument 1───N DailyEntry   (one PDF covers many wells)
+User 1───N UserSession
 ```
 
 ## Design decisions worth preserving

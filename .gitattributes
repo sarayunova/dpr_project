@@ -1,0 +1,2 @@
+# The backup script runs inside a Linux container -- CRLF would break it.
+*.sh text eol=lf

@@ -183,6 +183,20 @@ specifying, once its `[ ]` sections are filled in.
 **Exit criteria**: defined by the completed NFR doc — don't guess ahead
 of it.
 
+**Status (2026-09-25)**: implemented — email + password auth, original-PDF
+preservation, scheduled backups, restart/migration-on-start. Checks in
+`10_acceptance_criteria.md` §"Non-functional hardening (Phase 10)".
+Still open: the real-reboot check on the deployment machine, the
+backup-mechanism confirmation, and the performance items below, which
+need a decision rather than code:
+- Batch backlog uploads run synchronously in one HTTP request (~12s per
+  well narrative through the LLM on CPU), so a large backlog upload can
+  run for a very long time in a single request. A background job queue
+  would fix this but is an architecture change — confirm before building.
+- At 30 wells/asset the per-file LLM time approaches ~6 minutes, over the
+  5-minute budget (see `06_llm_prompts_and_eval.md`) — needs a hardware
+  benchmark / model-size decision.
+
 ## Sequencing notes
 
 - Phases 0-7 can proceed with what's already documented; Phase 8 is

@@ -7,18 +7,35 @@ the dashboard's contract drift silently.
 
 from __future__ import annotations
 
+import io
 from typing import Any, Literal
 
-from fastapi import Depends, FastAPI, File, HTTPException, UploadFile
+from fastapi import Cookie, Depends, FastAPI, File, HTTPException, Response, UploadFile
+from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
+from app.auth import (
+    SESSION_COOKIE,
+    authenticate,
+    cookie_secure,
+    create_session,
+    delete_session,
+    get_current_user,
+    session_lifetime,
+)
 from app.database import get_db
 from app.ingest import extract_text_from_pdf, ingest_dpr_text
-from app.models import DailyEntry, PhaseSnapshot, RepairEvent, Well
+from app.models import DailyEntry, PhaseSnapshot, RepairEvent, SourceDocument, User, Well
+from app.storage import save_source_document, source_document_path
 
 app = FastAPI(title="Drilling DPR Monitor")
+
+# Every /api route except the auth ones below requires a logged-in user
+# (docs/07_non_functional_requirements.md). /health and the static
+# dashboard shell stay public -- neither exposes any well data.
+LOGIN_REQUIRED = [Depends(get_current_user)]
 
 
 @app.get("/health")
@@ -26,7 +43,46 @@ def health() -> dict:
     return {"status": "ok"}
 
 
-@app.post("/api/ingest")
+class LoginRequest(BaseModel):
+    email: str
+    password: str
+
+
+@app.post("/api/auth/login")
+def login(body: LoginRequest, response: Response, db: Session = Depends(get_db)) -> dict:
+    user = authenticate(db, body.email, body.password)
+    if user is None:
+        # Same message for unknown email and wrong password.
+        raise HTTPException(status_code=401, detail="invalid email or password")
+    response.set_cookie(
+        SESSION_COOKIE,
+        create_session(db, user),
+        max_age=int(session_lifetime().total_seconds()),
+        httponly=True,
+        samesite="strict",
+        secure=cookie_secure(),
+    )
+    return {"email": user.email}
+
+
+@app.post("/api/auth/logout")
+def logout(
+    response: Response,
+    dpr_session: str | None = Cookie(default=None),
+    db: Session = Depends(get_db),
+) -> dict[str, bool]:
+    if dpr_session:
+        delete_session(db, dpr_session)
+    response.delete_cookie(SESSION_COOKIE)
+    return {"ok": True}
+
+
+@app.get("/api/auth/me")
+def me(user: User = Depends(get_current_user)) -> dict:
+    return {"email": user.email}
+
+
+@app.post("/api/ingest", dependencies=LOGIN_REQUIRED)
 async def ingest(
     files: list[UploadFile] = File(...), db: Session = Depends(get_db)
 ) -> dict[str, Any]:
@@ -35,8 +91,14 @@ async def ingest(
 
     for file in files:
         try:
-            text = extract_text_from_pdf(file.file)
-            result = ingest_dpr_text(text, db, source_filename=file.filename)
+            data = await file.read()
+            text = extract_text_from_pdf(io.BytesIO(data))
+            # Stored only once text extraction succeeds, so a non-PDF
+            # upload never gets kept as a "system of record" document.
+            document = save_source_document(db, file.filename, data)
+            result = ingest_dpr_text(
+                text, db, source_filename=file.filename, source_document=document
+            )
             db.commit()
             ingested.append(result)
         except Exception as exc:
@@ -46,13 +108,13 @@ async def ingest(
     return {"ingested": ingested, "errors": errors}
 
 
-@app.get("/api/wells")
+@app.get("/api/wells", dependencies=LOGIN_REQUIRED)
 def list_wells(db: Session = Depends(get_db)) -> list[dict[str, Any]]:
     wells = db.query(Well).order_by(Well.well_name).all()
     return [_well_summary(well, _latest_entry(db, well.id)) for well in wells]
 
 
-@app.get("/api/wells/{well_id}")
+@app.get("/api/wells/{well_id}", dependencies=LOGIN_REQUIRED)
 def get_well(well_id: int, db: Session = Depends(get_db)) -> dict[str, Any]:
     well = db.get(Well, well_id)
     if well is None:
@@ -78,7 +140,7 @@ def get_well(well_id: int, db: Session = Depends(get_db)) -> dict[str, Any]:
     }
 
 
-@app.get("/api/wells/{well_id}/variance")
+@app.get("/api/wells/{well_id}/variance", dependencies=LOGIN_REQUIRED)
 def get_well_variance(well_id: int, db: Session = Depends(get_db)) -> dict[str, Any]:
     well = db.get(Well, well_id)
     if well is None:
@@ -96,7 +158,7 @@ def get_well_variance(well_id: int, db: Session = Depends(get_db)) -> dict[str, 
     }
 
 
-@app.get("/api/repairs/unreviewed")
+@app.get("/api/repairs/unreviewed", dependencies=LOGIN_REQUIRED)
 def list_unreviewed_repairs(db: Session = Depends(get_db)) -> list[dict[str, Any]]:
     rows = (
         db.query(RepairEvent, DailyEntry, Well)
@@ -127,7 +189,7 @@ class ReviewRequest(BaseModel):
     outcome: Literal["confirmed", "false_positive"] = "confirmed"
 
 
-@app.get("/api/repairs/reviewed")
+@app.get("/api/repairs/reviewed", dependencies=LOGIN_REQUIRED)
 def list_reviewed_repairs(db: Session = Depends(get_db)) -> list[dict[str, Any]]:
     rows = (
         db.query(RepairEvent, DailyEntry, Well)
@@ -151,7 +213,7 @@ def list_reviewed_repairs(db: Session = Depends(get_db)) -> list[dict[str, Any]]
     ]
 
 
-@app.post("/api/repairs/{repair_id}/review")
+@app.post("/api/repairs/{repair_id}/review", dependencies=LOGIN_REQUIRED)
 def review_repair(
     repair_id: int, body: ReviewRequest = ReviewRequest(), db: Session = Depends(get_db)
 ) -> dict[str, bool]:
@@ -162,6 +224,22 @@ def review_repair(
     event.outcome = body.outcome
     db.commit()
     return {"ok": True}
+
+
+@app.get("/api/documents/{document_id}", dependencies=LOGIN_REQUIRED)
+def download_source_document(document_id: int, db: Session = Depends(get_db)) -> FileResponse:
+    document = db.get(SourceDocument, document_id)
+    if document is None:
+        raise HTTPException(status_code=404, detail="document not found")
+    path = source_document_path(document)
+    if not path.exists():
+        raise HTTPException(status_code=404, detail="document file missing from storage")
+    return FileResponse(
+        path,
+        media_type="application/pdf",
+        filename=document.original_filename or f"{document.sha256}.pdf",
+        content_disposition_type="inline",  # open in the browser's PDF viewer
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -199,6 +277,7 @@ def _well_summary(well: Well, entry: DailyEntry | None) -> dict[str, Any]:
 def _timeline_entry(entry: DailyEntry) -> dict[str, Any]:
     return {
         "report_date": entry.report_date,
+        "source_document_id": entry.source_document_id,
         "mode": entry.mode,
         "present_depth": entry.present_depth,
         "day_meterage": entry.day_meterage,

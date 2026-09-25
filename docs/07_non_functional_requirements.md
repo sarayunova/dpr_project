@@ -53,7 +53,12 @@ below was translated into a concrete stack decision.
 - Backups: **required**. [ Exact mechanism not yet specified by the
   user; default assumption until confirmed otherwise: a scheduled
   `pg_dump` job writing to a backup location, consistent with the
-  Postgres decision below. ]
+  Postgres decision below. ] **Implemented in Phase 10 with that
+  default** — the `backup` service in `docker-compose.yml`: a daily
+  `pg_dump` (dumps older than 30 days pruned) plus an incremental mirror
+  of the stored original PDFs (never pruned), both into
+  `BACKUP_HOST_DIR`. Interval, dump retention, and destination are all
+  `.env` settings; confirm or change them.
 
 ## Access control
 

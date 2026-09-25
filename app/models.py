@@ -82,6 +82,11 @@ class DailyEntry(Base):
     well_id: Mapped[int] = mapped_column(ForeignKey("wells.id"), nullable=False)
     report_date: Mapped[date] = mapped_column(Date, nullable=False)
     source_filename: Mapped[str | None] = mapped_column(String)
+    # Null for text-only ingestion (tests, scripts) -- set whenever an
+    # actual PDF upload produced this row.
+    source_document_id: Mapped[int | None] = mapped_column(
+        ForeignKey("source_documents.id")
+    )
     mode: Mapped[str | None] = mapped_column(String)
     present_depth: Mapped[float | None] = mapped_column(Float)
     day_meterage: Mapped[float | None] = mapped_column(Float)
@@ -112,6 +117,51 @@ class DailyEntry(Base):
     repair_events: Mapped[list["RepairEvent"]] = relationship(
         back_populates="daily_entry", cascade="all, delete-orphan"
     )
+
+
+class SourceDocument(Base):
+    """One row per distinct uploaded PDF (by content hash) -- the file
+    itself lives on disk, see app/storage.py. Added in Phase 10."""
+
+    __tablename__ = "source_documents"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    original_filename: Mapped[str | None] = mapped_column(String)
+    sha256: Mapped[str] = mapped_column(String(64), unique=True, nullable=False)
+    stored_path: Mapped[str] = mapped_column(String, nullable=False)
+    size_bytes: Mapped[int] = mapped_column(Integer, nullable=False)
+    uploaded_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+
+
+class User(Base):
+    """Email + password login, single role -- see app/auth.py. Added in
+    Phase 10 per docs/07_non_functional_requirements.md."""
+
+    __tablename__ = "users"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    email: Mapped[str] = mapped_column(String, unique=True, nullable=False)  # lowercased
+    password_hash: Mapped[str] = mapped_column(String, nullable=False)
+    # Deactivate rather than delete, so a departed user's account can't
+    # log in but the row (and anything later attributed to it) remains.
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True, server_default="true")
+    created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+
+    sessions: Mapped[list["UserSession"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan"
+    )
+
+
+class UserSession(Base):
+    __tablename__ = "user_sessions"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    token_hash: Mapped[str] = mapped_column(String(64), unique=True, nullable=False)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+    expires_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+
+    user: Mapped["User"] = relationship(back_populates="sessions")
 
 
 class PhaseSnapshot(Base):

@@ -110,8 +110,14 @@ supersede what the prototype originally used.)
 - **Service model**: runs as a **Docker container**, so it survives an
   unattended machine restart and the same container image moves to the
   future shared server regardless of its OS.
-- **Backups**: required. Default approach (to be confirmed): a
-  scheduled `pg_dump` job writing to a backup location.
+- **Backups**: required. Implemented (Phase 10) with the default
+  approach, still to be confirmed: a `backup` container running a
+  scheduled `pg_dump` plus a mirror of the stored original PDFs — see
+  `07_non_functional_requirements.md`.
+- **Restart survival**: every container is `restart: unless-stopped`,
+  and the app applies pending migrations on startup. On a Windows host
+  running Docker Desktop, Docker Desktop itself must also be set to
+  start automatically, otherwise nothing comes back after a reboot.
 
 ## Non-functional constraints to carry into implementation
 

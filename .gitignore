@@ -5,3 +5,6 @@ venv/
 .env
 .pytest_cache/
 *.egg-info/
+data/
+backups/
+.playwright-mcp/

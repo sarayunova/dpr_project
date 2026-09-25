@@ -50,6 +50,17 @@ pytest
 
 `DATABASE_URL` defaults to `postgresql+psycopg://dpr_monitor:dpr_monitor@localhost:5432/dpr_monitor`
 (matching `.env.example`); override it if your local Postgres differs.
+If something else already uses port 5432, start this project's Postgres
+on another port and point `DATABASE_URL` at it:
+
+```
+$env:POSTGRES_HOST_PORT = "5433"
+docker compose up -d db
+$env:DATABASE_URL = "postgresql+psycopg://dpr_monitor:dpr_monitor@localhost:5433/dpr_monitor"
+```
+
+Uploaded PDFs are stored under `UPLOAD_DIR` (default `data/uploads`,
+gitignored).
 Model round-trip tests (`tests/test_models.py`) skip automatically if no
 database is reachable, so `pytest` still runs fine without Postgres —
 useful when iterating on the parser alone.
@@ -87,10 +98,56 @@ copy .env.example .env
 docker compose up --build
 ```
 
-This starts the app (port 8000) and a Postgres 16 database. Ollama is
-expected to already be running on the host machine — it is not
+This starts the app (port 8000), a Postgres 16 database, and a `backup`
+service. The app applies database migrations itself on every start.
+Ollama is expected to already be running on the host machine — it is not
 containerized here, since a locally-installed model is the whole point
 of the no-cloud-data constraint (see `docs/05_architecture.md`).
+
+**Surviving a reboot:** every container restarts automatically, but only
+once Docker itself is running. On Windows, turn on Docker Desktop →
+Settings → General → "Start Docker Desktop when you sign in". Docker
+Desktop starts at user sign-in, not at boot, so the machine also needs to
+sign in automatically (or use a server OS with the Docker Engine as a
+system service).
+
+## User accounts
+
+Login is email + password (`docs/07_non_functional_requirements.md`).
+There's no sign-up page or reset-by-email, so accounts are managed from
+the command line. Passwords are always prompted for, never passed as
+arguments:
+
+```
+docker compose exec app python -m app.users create someone@ongc.co.in
+docker compose exec app python -m app.users set-password someone@ongc.co.in
+docker compose exec app python -m app.users deactivate someone@ongc.co.in
+docker compose exec app python -m app.users list
+```
+
+(Without Docker: `python -m app.users ...` from the activated venv.)
+Changing a password or deactivating an account logs that user out
+everywhere. Create the first account before anyone opens the dashboard.
+Set `COOKIE_SECURE=true` once the app is served over HTTPS.
+
+## Backups and restore
+
+The `backup` service writes a `pg_dump` every `BACKUP_INTERVAL_HOURS`
+(default 24) to `BACKUP_HOST_DIR/db/`, prunes dumps older than
+`BACKUP_KEEP_DAYS` (default 30), and mirrors the stored original PDFs to
+`BACKUP_HOST_DIR/uploads/` (never pruned). Set `BACKUP_HOST_DIR` in
+`.env` to a different disk or network share than the data itself.
+
+To restore (this replaces the current database contents):
+
+```
+docker compose stop app
+docker compose exec backup sh -c "dropdb dpr_monitor && createdb dpr_monitor && pg_restore --no-owner -d dpr_monitor /backups/db/dpr_monitor_<timestamp>.dump"
+docker compose start app
+```
+
+and copy `BACKUP_HOST_DIR/uploads/` back into `UPLOAD_HOST_DIR` if the
+PDFs were lost too.
 
 ## Project layout
 
@@ -105,7 +162,7 @@ scripts/        one-off tools (real-model eval runner)
 
 ## Status
 
-Phases 0-7 and 9 complete: scaffolding, the deterministic DPR parser
+Phases 0-7, 9 and 10 complete: scaffolding, the deterministic DPR parser
 (`app/parser.py`), the data model/database (`app/models.py`,
 `app/database.py`, Alembic migrations), the ingestion pipeline
 (`app/ingest.py`), local LLM repair/troubleshooting extraction
@@ -127,9 +184,16 @@ precision / 94% accuracy on the 18-row labeled set — see
 `docs/06_llm_prompts_and_eval.md` for the full comparison against a
 smaller model and a performance caveat at full well-count scale.
 
+Phase 10 (non-functional hardening) is implemented: email + password
+login on every API route, original PDFs preserved as the system of
+record (`GET /api/documents/{id}`), scheduled `pg_dump` + PDF-mirror
+backups, and restart/migrate-on-start in Docker — see
+`docs/10_acceptance_criteria.md` §"Non-functional hardening (Phase 10)".
+Still open there: a real-reboot check on the deployment machine, and two
+performance decisions (a background queue for large batch uploads, and
+the LLM model size at 30 wells/asset).
+
 Remaining v1 scope: **Phase 8 (proposal/AFE ingestion) is blocked** on
 a real sample document (see `02_data_dictionary.md` §B) — nothing to
-build there yet. Phase 10 (non-functional hardening, now that
-`07_non_functional_requirements.md` is filled in) is open. See
-`docs/11_implementation_phases.md` for the full phase-by-phase build
-plan.
+build there yet. See `docs/11_implementation_phases.md` for the full
+phase-by-phase build plan.

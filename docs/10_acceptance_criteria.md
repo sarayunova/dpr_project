@@ -194,6 +194,53 @@ hand-transcribed text and couldn't have found it.
       Regression test for the pdfplumber word-merging bug found in
       Phase 9; see `02_data_dictionary.md` §A.4.
 
+## Non-functional hardening (Phase 10)
+
+Derived from `07_non_functional_requirements.md`. Automated in
+`tests/test_auth.py` and `tests/test_api.py` unless marked manual.
+
+**Authentication (email + password, single role)**
+- [x] Every `/api/*` route except login/logout returns `401` without a
+      session — enumerated from the app's route table, so a new endpoint
+      added without the login guard fails the test automatically.
+- [x] `/health` and the dashboard shell stay reachable logged-out.
+- [x] Correct login sets an `HttpOnly`, `SameSite=Strict` session cookie
+      and grants access; email matching is case-insensitive.
+- [x] Wrong password and unknown email return identical `401` responses.
+- [x] Passwords stored salted-hashed (scrypt), never plaintext; session
+      tokens stored only as a SHA-256 hash.
+- [x] Logout invalidates the session server-side (replaying the old
+      cookie fails); expired sessions are rejected.
+- [x] Deactivating a user or changing their password (CLI) ends their
+      existing sessions immediately.
+- [x] Manual (browser): logged-out dashboard shows only the sign-in form;
+      wrong password shows an error; correct login loads the dashboard;
+      log out returns to the sign-in form.
+
+**Original PDFs preserved as system of record**
+- [x] An uploaded PDF is stored byte-for-byte on disk and linked from
+      each `DailyEntry` it produced (`source_document_id`).
+- [x] `GET /api/documents/{id}` returns the identical bytes as
+      `application/pdf`; the dashboard timeline links to it.
+- [x] Re-uploading identical bytes keeps one stored copy and one row.
+- [x] A file that isn't a readable PDF is not stored.
+
+**Deployment, restart survival, backups** (manual, verified 2026-09-25
+against the full `docker compose up --build` stack)
+- [x] App container waits for a healthy database, applies migrations on
+      start, and serves `/health`.
+- [x] Killing the app's process inside the container: Docker restarts
+      it automatically (`RestartCount` 1, `/health` OK).
+- [x] Full flow in Docker: create user via `python -m app.users` →
+      login → upload → PDF appears under `UPLOAD_HOST_DIR` on the host.
+- [x] The `backup` service writes a `pg_dump` and mirrors the uploaded
+      PDF; restoring that dump into a scratch database with `pg_restore`
+      reproduces wells, daily entries, users, and source documents.
+- [ ] Survives a real machine reboot — **requires Docker Desktop's
+      "Start Docker Desktop when you sign in" setting, which is currently
+      off on the dev machine**; and Docker Desktop only starts on user
+      sign-in, not at boot. Re-check on the actual deployment machine.
+
 ## Not yet defined (fill in once available)
 
 - [ ] Proposal ingestion correctness — blocked on a real sample.

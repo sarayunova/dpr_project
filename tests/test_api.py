@@ -15,9 +15,10 @@ from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
+from app.auth import get_current_user
 from app.database import get_db
 from app.main import app
-from app.models import DailyEntry, Well
+from app.models import DailyEntry, SourceDocument, Well
 
 DATABASE_URL = os.environ.get(
     "DATABASE_URL",
@@ -64,21 +65,37 @@ def no_real_llm_calls():
         yield
 
 
+@pytest.fixture(autouse=True)
+def upload_dir(tmp_path, monkeypatch):
+    """Keep uploaded PDFs (app/storage.py) out of the real data/uploads."""
+    monkeypatch.setenv("UPLOAD_DIR", str(tmp_path / "uploads"))
+    return tmp_path / "uploads"
+
+
 @pytest.fixture
 def client():
     session = Session()
+    existing_document_ids = [d.id for d in session.query(SourceDocument.id)]
 
     def override_get_db():
         yield session
 
     app.dependency_overrides[get_db] = override_get_db
+    # Login itself is covered in tests/test_auth.py; here every request
+    # is treated as coming from a logged-in user.
+    app.dependency_overrides[get_current_user] = lambda: None
     try:
         yield TestClient(app)
     finally:
         app.dependency_overrides.pop(get_db, None)
+        app.dependency_overrides.pop(get_current_user, None)
         wells = session.query(Well).filter(Well.well_name.in_(TEST_WELL_NAMES)).all()
         for well in wells:
             session.delete(well)
+        session.flush()
+        session.query(SourceDocument).filter(
+            SourceDocument.id.not_in(existing_document_ids)
+        ).delete(synchronize_session=False)
         session.commit()
         session.close()
 
@@ -347,3 +364,62 @@ def test_reviewed_events_excluded_from_unreviewed_list(client):
     assert repair_id not in [e["repair_id"] for e in unreviewed]
     reviewed = client.get("/api/repairs/reviewed").json()
     assert repair_id in [e["repair_id"] for e in reviewed]
+
+
+# ---------------------------------------------------------------------------
+# Phase 10: original PDFs preserved as the system of record
+# ---------------------------------------------------------------------------
+
+
+def test_uploaded_pdf_is_preserved_byte_for_byte(client, upload_dir):
+    original = (SAMPLES_DIR / "sample_dpr.pdf").read_bytes()
+    _upload_sample(client)
+
+    stored = list(upload_dir.rglob("*.pdf"))
+    assert len(stored) == 1
+    assert stored[0].read_bytes() == original
+
+
+def test_timeline_links_to_downloadable_source_pdf(client):
+    _upload_sample(client)
+    well_id = next(
+        w["id"] for w in client.get("/api/wells").json() if w["well_name"] == "NG-2000-4"
+    )
+    entry = client.get(f"/api/wells/{well_id}").json()["timeline"][0]
+    assert entry["source_document_id"] is not None
+
+    response = client.get(f"/api/documents/{entry['source_document_id']}")
+    assert response.status_code == 200
+    assert response.headers["content-type"] == "application/pdf"
+    assert response.content == (SAMPLES_DIR / "sample_dpr.pdf").read_bytes()
+
+
+def test_reuploading_same_pdf_reuses_one_stored_copy(client, upload_dir):
+    _upload_sample(client)
+    _upload_sample(client)
+
+    assert len(list(upload_dir.rglob("*.pdf"))) == 1
+    session = Session()
+    try:
+        sha_rows = (
+            session.query(SourceDocument)
+            .filter_by(original_filename="sample_dpr.pdf")
+            .count()
+        )
+    finally:
+        session.close()
+    assert sha_rows == 1
+
+
+def test_unparseable_upload_is_not_stored(client, upload_dir):
+    import io
+
+    client.post(
+        "/api/ingest",
+        files=[("files", ("corrupt.pdf", io.BytesIO(b"not a real pdf"), "application/pdf"))],
+    )
+    assert list(upload_dir.rglob("*.pdf")) == []
+
+
+def test_download_unknown_document_404(client):
+    assert client.get("/api/documents/999999999").status_code == 404

@@ -9,19 +9,55 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      # Host-side port is overridable so this can coexist with another
+      # Postgres already bound to 5432 on the same machine.
+      - "${POSTGRES_HOST_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
 
   app:
     build: .
     restart: unless-stopped
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     environment:
       DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-dpr_monitor}:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}@db:5432/${POSTGRES_DB:-dpr_monitor}
       OLLAMA_HOST: ${OLLAMA_HOST:-http://host.docker.internal:11434}
       OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen2.5:7b-instruct}
+      UPLOAD_DIR: /app/data/uploads
+      SESSION_HOURS: ${SESSION_HOURS:-12}
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+    volumes:
+      # Original uploaded PDFs (system of record) as plain files on the
+      # host, not hidden inside a Docker volume.
+      - ${UPLOAD_HOST_DIR:-./data/uploads}:/app/data/uploads
     ports:
       - "8000:8000"
+
+  backup:
+    image: postgres:16  # same major version as db, so pg_dump matches
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PGHOST: db
+      PGDATABASE: ${POSTGRES_DB:-dpr_monitor}
+      PGUSER: ${POSTGRES_USER:-dpr_monitor}
+      PGPASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      BACKUP_INTERVAL_HOURS: ${BACKUP_INTERVAL_HOURS:-24}
+      BACKUP_KEEP_DAYS: ${BACKUP_KEEP_DAYS:-30}
+    volumes:
+      - ./scripts/backup_loop.sh:/backup_loop.sh:ro
+      - ${UPLOAD_HOST_DIR:-./data/uploads}:/uploads:ro
+      # Point this at a different disk / network share in .env -- a
+      # backup on the same disk as the data doesn't survive that disk.
+      - ${BACKUP_HOST_DIR:-./backups}:/backups
+    entrypoint: ["sh", "/backup_loop.sh"]
 
 volumes:
   pgdata:
